@@ -1,0 +1,18 @@
+[project]
+name = "anomaly-detector"
+version = "0.1.0"
+description = "Network Traffic Anomaly Detector - PRP by Angel Rusev (Fontys, Cybersecurity Attack & Defend 2026)"
+authors = [{ name = "Angel Rusev" }]
+license = { text = "MIT" }
+requires-python = ">=3.10"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
