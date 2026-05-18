@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -e .
+
+      - name: Generate small synthetic dataset
+        run: python -m scripts.generate_synthetic_dataset --rows 4000 --out data/raw/ci_flows.csv
+
+      - name: Train (fast smoke run)
+        run: python -m scripts.train --data data/raw/ci_flows.csv --out-dir models
+
+      - name: Run tests
+        run: pytest -q
+
+      - name: Smoke-test API
+        run: |
+          uvicorn anomaly_detector.api.main:app --host 0.0.0.0 --port 8000 &
+          sleep 4
+          curl -fsS http://localhost:8000/health

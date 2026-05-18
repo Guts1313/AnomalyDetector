@@ -1,0 +1,39 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    image: anomaly-detector-api:0.1.0
+    container_name: ad-api
+    ports:
+      - "8000:8000"
+    environment:
+      - AD_MODELS_DIR=/app/models
+      - AD_ALERT_DB=/app/data/alerts.db
+      - AD_THRESHOLD=0.5
+    volumes:
+      - ./models:/app/models:ro
+      - ad-data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys;\nimport json\ntry:\n  r=urllib.request.urlopen('http://localhost:8000/health',timeout=2).read();sys.exit(0)\nexcept Exception:\n  sys.exit(1)"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    image: anomaly-detector-dashboard:0.1.0
+    container_name: ad-dashboard
+    ports:
+      - "8501:8501"
+    environment:
+      - AD_API_URL=http://api:8000
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  ad-data:
