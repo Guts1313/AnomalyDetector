@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Network Traffic Anomaly Detector — Live Flow Breakdown</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  :root {
+    --bg-0: #07090f;
+    --bg-1: #0e1320;
+    --bg-2: #131a2b;
+    --ink: #e8eefc;
+    --ink-dim: #8a98b8;
+    --line: #1f2a44;
+    --accent: #38bdf8;
+    --accent-2: #818cf8;
+    --benign: #22c55e;
+    --attack: #ef4444;
+    --warn: #f59e0b;
+    --info: #06b6d4;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(56,189,248,.10), transparent 60%),
+      radial-gradient(ellipse 60% 40% at 100% 100%, rgba(129,140,248,.10), transparent 60%),
+      linear-gradient(180deg, var(--bg-0), var(--bg-1));
+    min-height: 100vh;
+  }
+  header {
+    padding: 28px 36px 12px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(15,20,32,.6), rgba(15,20,32,0));
+    backdrop-filter: blur(6px);
+  }
+  h1 {
+    margin: 0 0 6px;
+    font-size: 22px;
+    letter-spacing: .2px;
+  }
+  h1 span.tag {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #0b1020;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    vertical-align: 2px;
+  }
+  header p {
+    margin: 0;
+    color: var(--ink-dim);
+    font-size: 13px;
+    max-width: 1100px;
+  }
+  .legend {
+    display: flex; gap: 22px; margin-top: 14px; flex-wrap: wrap;
+    font-size: 12px; color: var(--ink-dim);
+  }
+  .legend .swatch {
+    display: inline-block; width: 10px; height: 10px; border-radius: 50%;
+    margin-right: 6px; vertical-align: middle;
+    box-shadow: 0 0 6px currentColor;
+  }
+  .legend .l-benign { color: var(--benign); }
+  .legend .l-attack { color: var(--attack); }
+  .legend .l-poll   { color: var(--accent); }
+  .controls {
+    display: flex; gap: 8px; align-items: center; margin-top: 10px;
+    font-size: 12px; color: var(--ink-dim);
+  }
+  .controls button {
+    appearance: none; border: 1px solid var(--line);
+    background: rgba(255,255,255,.03); color: var(--ink);
+    padding: 6px 12px; border-radius: 8px; cursor: pointer;
+    font: inherit;
+  }
+  .controls button:hover { border-color: var(--accent); color: var(--accent); }
+  .controls input[type=range] { width: 160px; }
+
+  main { padding: 18px 28px 60px; }
+  .stage {
+    position: relative;
+    max-width: 1480px;
+    margin: 0 auto;
+    background: rgba(11,16,28,.55);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.45);
+  }
+  svg.diagram { width: 100%; height: auto; display: block; }
+
+  .stage-meta {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 18px;
+  }
+  .card {
+    background: linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,0));
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  .card h3 {
+    margin: 0 0 6px;
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: .4px;
+    text-transform: uppercase;
+  }
+  .card p { margin: 0; color: var(--ink-dim); font-size: 13px; line-height: 1.5; }
+
+  footer {
+    max-width: 1480px;
+    margin: 18px auto 0;
+    color: var(--ink-dim);
+    font-size: 12px;
+    text-align: center;
+  }
+  footer code {
+    background: rgba(255,255,255,.05);
+    padding: 1px 6px; border-radius: 4px;
+    color: var(--accent);
+  }
+
+  /* SVG node styling */
+  .node-rect {
+    fill: url(#nodeGrad);
+    stroke: var(--line);
+    stroke-width: 1.2;
+    rx: 12; ry: 12;
+    filter: url(#nodeShadow);
+  }
+  .node-title  { fill: #f5f7ff; font-size: 14px; font-weight: 700; }
+  .node-sub    { fill: var(--ink-dim); font-size: 11px; }
+  .node-icon   { fill: var(--accent); }
+  .path-line {
+    fill: none;
+    stroke: rgba(56,189,248,.25);
+    stroke-width: 1.8;
+    stroke-dasharray: 5 6;
+    animation: dashflow 18s linear infinite;
+  }
+  .path-line.return { stroke: rgba(34,197,94,.20); }
+  .path-line.poll   { stroke: rgba(129,140,248,.25); }
+  @keyframes dashflow {
+    to { stroke-dashoffset: -200; }
+  }
+
+  /* dot pulse around active node */
+  .node-pulse {
+    fill: none; stroke: var(--accent); stroke-width: 2;
+    opacity: 0;
+  }
+  .node-pulse.active {
+    animation: nodepulse .9s ease-out 1;
+  }
+  @keyframes nodepulse {
+    0%   { opacity: .9; r: 6; }
+    100% { opacity: 0;  r: 28; }
+  }
+
+  /* counter chip */
+  .chip {
+    position: absolute; top: 16px; right: 24px;
+    display: flex; gap: 14px; font-size: 12px;
+    background: rgba(7,9,15,.85);
+    border: 1px solid var(--line); border-radius: 999px;
+    padding: 8px 14px; color: var(--ink-dim);
+    backdrop-filter: blur(6px);
+  }
+  .chip b { color: var(--ink); font-variant-numeric: tabular-nums; }
+  .chip .c-benign b { color: var(--benign); }
+  .chip .c-attack b { color: var(--attack); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Network Traffic Anomaly Detector <span class="tag">Live flow breakdown</span></h1>
+  <p>
+    End-to-end view of one network flow as it travels from the client (PCAP / CSV ingest)
+    through the FastAPI surface, the feature-engineering pipeline, the Gradient-Boosting
+    classifier, the severity bucketer, and the SQLite audit store — then back as a JSON
+    verdict, while the Streamlit dashboard polls aggregates in the background.
+  </p>
+  <div class="legend">
+    <span><span class="swatch l-benign"></span>benign flow</span>
+    <span><span class="swatch l-attack"></span>attack flow</span>
+    <span><span class="swatch l-poll"></span>dashboard poll (every 5&nbsp;s)</span>
+  </div>
+  <div class="controls">
+    <label>Throughput
+      <input id="rate" type="range" min="120" max="2000" step="20" value="600" />
+    </label>
+    <label>Attack mix
+      <input id="mix" type="range" min="0" max="100" step="1" value="30" />
+      <span id="mixval">30%</span>
+    </label>
+    <button id="pause">Pause</button>
+    <button id="burst">Trigger DDoS burst</button>
+  </div>
+</header>
+
+<main>
+<div class="stage">
+  <div class="chip">
+    <span class="c-total">flows&nbsp;<b id="cTotal">0</b></span>
+    <span class="c-benign">benign&nbsp;<b id="cBenign">0</b></span>
+    <span class="c-attack">attacks&nbsp;<b id="cAttack">0</b></span>
+    <span>avg latency&nbsp;<b id="cLat">0.0</b>&nbsp;ms</span>
+  </div>
+
+  <svg class="diagram" viewBox="0 0 1480 780" xmlns="http://www.w3.org/2000/svg" aria-label="Architecture flow">
+
+    <defs>
+      <!-- node fill gradient -->
+      <linearGradient id="nodeGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"  stop-color="#1a2238"/>
+        <stop offset="100%" stop-color="#0e1426"/>
+      </linearGradient>
+
+      <!-- shadow for nodes -->
+      <filter id="nodeShadow" x="-20%" y="-20%" width="140%" height="160%">
+        <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000" flood-opacity="0.45"/>
+      </filter>
+
+      <!-- glow used by traveling dots -->
+      <filter id="dotGlow" x="-100%" y="-100%" width="300%" height="300%">
+        <feGaussianBlur stdDeviation="3" result="blur"/>
+        <feMerge>
+          <feMergeNode in="blur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+
+      <!-- arrowheads (subtle) -->
+      <marker id="arrowOut" viewBox="0 0 10 10" refX="9" refY="5"
+              markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0,0 L10,5 L0,10 Z" fill="rgba(56,189,248,.55)"/>
+      </marker>
+      <marker id="arrowBack" viewBox="0 0 10 10" refX="9" refY="5"
+              markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0,0 L10,5 L0,10 Z" fill="rgba(34,197,94,.55)"/>
+      </marker>
+      <marker id="arrowPoll" viewBox="0 0 10 10" refX="9" refY="5"
+              markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0,0 L10,5 L0,10 Z" fill="rgba(129,140,248,.55)"/>
+      </marker>
+
+      <!-- The flow path: client -> api -> pydantic -> features -> model -> severity -> store -->
+      <path id="pForward"
+            d="M 130 360
+               C 200 360, 240 360, 290 360
+               L 410 360
+               C 470 360, 490 360, 530 360
+               L 650 360
+               C 700 360, 720 360, 770 360
+               L 890 360
+               C 940 360, 960 360, 1010 360
+               L 1130 360
+               C 1180 360, 1200 360, 1250 360
+               L 1330 360"
+            class="path-line" marker-end="url(#arrowOut)"/>
+
+      <!-- severity -> store (drop down) -->
+      <path id="pToStore"
+            d="M 1330 360
+               C 1380 360, 1400 320, 1400 240
+               L 1400 200"
+            class="path-line" marker-end="url(#arrowOut)"/>
+
+      <!-- response: from severity (south) back along the bottom to the client -->
+      <path id="pResponse"
+            d="M 1310 380
+               C 1310 470, 1280 540, 1180 560
+               L 230 560
+               C 160 560, 130 510, 130 420"
+            class="path-line return" marker-end="url(#arrowBack)"/>
+
+      <!-- dashboard polls /metrics and /alerts -->
+      <path id="pPoll"
+            d="M 280 700
+               C 400 700, 600 700, 900 700
+               C 1200 700, 1350 660, 1390 580
+               L 1400 240"
+            class="path-line poll" marker-end="url(#arrowPoll)"/>
+
+      <!-- subtle background grid -->
+      <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,.025)" stroke-width="1"/>
+      </pattern>
+    </defs>
+
+    <!-- background grid -->
+    <rect width="1480" height="780" fill="url(#grid)"/>
+
+    <!-- section labels -->
+    <text x="40"   y="36" class="node-sub" fill="#7a8aab">REQUEST</text>
+    <text x="1200" y="36" class="node-sub" fill="#7a8aab">CLASSIFICATION &amp; AUDIT</text>
+    <text x="40"   y="620" class="node-sub" fill="#7a8aab">OBSERVER</text>
+
+    <!-- nodes -->
+    <!-- Client -->
+    <g id="nClient">
+      <rect class="node-rect" x="50"  y="320" width="160" height="80"/>
+      <text x="130" y="350" text-anchor="middle" class="node-title">Client</text>
+      <text x="130" y="370" text-anchor="middle" class="node-sub">PCAP / sensor</text>
+      <text x="130" y="386" text-anchor="middle" class="node-sub">POST /predict</text>
+      <circle cx="130" cy="360" r="6" class="node-pulse" data-node="client"/>
+    </g>
+
+    <!-- FastAPI -->
+    <g id="nApi">
+      <rect class="node-rect" x="250" y="320" width="160" height="80"/>
+      <text x="330" y="346" text-anchor="middle" class="node-title">FastAPI</text>
+      <text x="330" y="364" text-anchor="middle" class="node-sub">:8000  ·  /predict</text>
+      <text x="330" y="382" text-anchor="middle" class="node-sub">async ingress</text>
+      <circle cx="330" cy="360" r="6" class="node-pulse" data-node="api"/>
+    </g>
+
+    <!-- Pydantic -->
+    <g id="nPydantic">
+      <rect class="node-rect" x="450" y="320" width="160" height="80"/>
+      <text x="530" y="346" text-anchor="middle" class="node-title">Pydantic v2</text>
+      <text x="530" y="364" text-anchor="middle" class="node-sub">schema validation</text>
+      <text x="530" y="382" text-anchor="middle" class="node-sub">FlowRecord[]</text>
+      <circle cx="530" cy="360" r="6" class="node-pulse" data-node="pydantic"/>
+    </g>
+
+    <!-- Feature pipeline -->
+    <g id="nFeatures">
+      <rect class="node-rect" x="650" y="320" width="160" height="80"/>
+      <text x="730" y="346" text-anchor="middle" class="node-title">Feature pipeline</text>
+      <text x="730" y="364" text-anchor="middle" class="node-sub">impute · RobustScaler</text>
+      <text x="730" y="382" text-anchor="middle" class="node-sub">OneHotEncoder</text>
+      <circle cx="730" cy="360" r="6" class="node-pulse" data-node="features"/>
+    </g>
+
+    <!-- ML model -->
+    <g id="nModel">
+      <rect class="node-rect" x="850" y="320" width="160" height="80"/>
+      <text x="930" y="346" text-anchor="middle" class="node-title">Gradient Boosting</text>
+      <text x="930" y="364" text-anchor="middle" class="node-sub">scikit-learn  ·  8-class</text>
+      <text x="930" y="382" text-anchor="middle" class="node-sub">~7 µs / sample</text>
+      <circle cx="930" cy="360" r="6" class="node-pulse" data-node="model"/>
+    </g>
+
+    <!-- Severity bucketer -->
+    <g id="nSeverity">
+      <rect class="node-rect" x="1050" y="320" width="180" height="80"/>
+      <text x="1140" y="346" text-anchor="middle" class="node-title">Severity bucketer</text>
+      <text x="1140" y="364" text-anchor="middle" class="node-sub">info → critical</text>
+      <text x="1140" y="382" text-anchor="middle" class="node-sub">+ threshold gate</text>
+      <circle cx="1140" cy="360" r="6" class="node-pulse" data-node="severity"/>
+    </g>
+
+    <!-- SQLite store -->
+    <g id="nStore">
+      <rect class="node-rect" x="1320" y="120" width="140" height="80"/>
+      <text x="1390" y="146" text-anchor="middle" class="node-title">SQLite</text>
+      <text x="1390" y="164" text-anchor="middle" class="node-sub">alerts.db</text>
+      <text x="1390" y="182" text-anchor="middle" class="node-sub">append-only audit</text>
+      <circle cx="1390" cy="160" r="6" class="node-pulse" data-node="store"/>
+    </g>
+
+    <!-- Response (logical, drawn as a chip near the client) -->
+    <g id="nResp">
+      <rect class="node-rect" x="50" y="540" width="160" height="70"/>
+      <text x="130" y="566" text-anchor="middle" class="node-title">JSON verdict</text>
+      <text x="130" y="584" text-anchor="middle" class="node-sub">label · score · severity</text>
+      <text x="130" y="600" text-anchor="middle" class="node-sub">200 OK</text>
+      <circle cx="130" cy="572" r="6" class="node-pulse" data-node="resp"/>
+    </g>
+
+    <!-- Dashboard -->
+    <g id="nDash">
+      <rect class="node-rect" x="240" y="660" width="220" height="80"/>
+      <text x="350" y="686" text-anchor="middle" class="node-title">Streamlit dashboard</text>
+      <text x="350" y="704" text-anchor="middle" class="node-sub">polls /metrics &amp; /alerts</text>
+      <text x="350" y="722" text-anchor="middle" class="node-sub">severity ribbon · audit</text>
+      <circle cx="350" cy="700" r="6" class="node-pulse" data-node="dash"/>
+    </g>
+
+    <!-- node-stage micro-labels above the spine -->
+    <text x="130"  y="305" text-anchor="middle" class="node-sub">① ingest</text>
+    <text x="330"  y="305" text-anchor="middle" class="node-sub">② accept</text>
+    <text x="530"  y="305" text-anchor="middle" class="node-sub">③ validate</text>
+    <text x="730"  y="305" text-anchor="middle" class="node-sub">④ transform</text>
+    <text x="930"  y="305" text-anchor="middle" class="node-sub">⑤ classify</text>
+    <text x="1140" y="305" text-anchor="middle" class="node-sub">⑥ bucket</text>
+    <text x="1390" y="105" text-anchor="middle" class="node-sub">⑦ persist</text>
+    <text x="130"  y="530" text-anchor="middle" class="node-sub">⑧ respond</text>
+    <text x="350"  y="650" text-anchor="middle" class="node-sub">⑨ visualise</text>
+
+    <!-- live-spawned dots will be appended into this group -->
+    <g id="dots"></g>
+  </svg>
+</div>
+
+<div class="stage-meta">
+  <div class="card">
+    <h3>① – ③  Ingest &amp; validate</h3>
+    <p>The client (a CICFlowMeter sidecar, a CSV upload, or the dashboard's manual-scoring form) POSTs one or more flows. FastAPI's async ingress passes the JSON to Pydantic v2, which enforces the FlowRecord schema and rejects malformed payloads with a 422 before any model code runs.</p>
+  </div>
+  <div class="card">
+    <h3>④  Feature transform</h3>
+    <p>The persisted ColumnTransformer (median imputation + RobustScaler + OneHotEncoder) maps the 20-feature CIC-flow record into the exact vector space the model was trained on. Bundling pipeline and model in a single joblib artefact guarantees train/serve parity — one of the most common false-positive sources in the literature.</p>
+  </div>
+  <div class="card">
+    <h3>⑤ – ⑥  Classify &amp; bucket</h3>
+    <p>Gradient Boosting emits an 8-class verdict (BENIGN or one of seven attack categories) plus a probability vector. The severity bucketer collapses that into <code style="color:#f59e0b">info → critical</code>, optionally gated by an operator-supplied threshold so analysts can dial sensitivity per investigation without retraining.</p>
+  </div>
+  <div class="card">
+    <h3>⑦ – ⑨  Persist, respond, observe</h3>
+    <p>Every classification — benign or attack — is appended to the SQLite audit store for forensic replay, then the JSON verdict returns to the client. In parallel, the Streamlit dashboard polls <code>/metrics</code> and <code>/alerts</code> every few seconds to refresh the analyst view.</p>
+  </div>
+</div>
+
+<footer>
+  Animation is purely illustrative — dot colour, throughput and attack mix are driven by the controls above.
+  The real artefact lives at <code>github.com/Guts1313/AnomalyDetector</code>.
+</footer>
+</main>
+
+<script>
+(() => {
+  const svgNS = "http://www.w3.org/2000/svg";
+  const dotsG = document.getElementById("dots");
+  const ATTACK_COLOR = "#ef4444";
+  const BENIGN_COLOR = "#22c55e";
+  const POLL_COLOR   = "#818cf8";
+
+  // Stage hit-points along pForward at fractional path positions
+  const STAGES = [
+    { node: "client",   t: 0.00 },
+    { node: "api",      t: 0.16 },
+    { node: "pydantic", t: 0.34 },
+    { node: "features", t: 0.52 },
+    { node: "model",    t: 0.70 },
+    { node: "severity", t: 0.88 },
+  ];
+
+  // Cache node pulse circles
+  const pulses = {};
+  document.querySelectorAll(".node-pulse").forEach(el => {
+    pulses[el.dataset.node] = el;
+  });
+
+  let counters = { total: 0, benign: 0, attack: 0, latencySum: 0 };
+  const elTotal  = document.getElementById("cTotal");
+  const elBenign = document.getElementById("cBenign");
+  const elAttack = document.getElementById("cAttack");
+  const elLat    = document.getElementById("cLat");
+
+  function flashNode(name) {
+    const p = pulses[name];
+    if (!p) return;
+    p.classList.remove("active");
+    // re-trigger CSS animation
+    void p.getBoundingClientRect();
+    p.classList.add("active");
+  }
+
+  function spawnDot({ pathId, color, durMs, onStages, onDone }) {
+    const dot = document.createElementNS(svgNS, "circle");
+    dot.setAttribute("r", "5");
+    dot.setAttribute("fill", color);
+    dot.setAttribute("filter", "url(#dotGlow)");
+    const motion = document.createElementNS(svgNS, "animateMotion");
+    motion.setAttribute("dur", (durMs / 1000) + "s");
+    motion.setAttribute("repeatCount", "1");
+    motion.setAttribute("fill", "remove");
+    motion.setAttribute("rotate", "auto");
+    const mpath = document.createElementNS(svgNS, "mpath");
+    mpath.setAttribute("href", "#" + pathId);
+    motion.appendChild(mpath);
+    dot.appendChild(motion);
+    dotsG.appendChild(dot);
+
+    if (onStages) {
+      onStages.forEach(s => {
+        setTimeout(() => flashNode(s.node), Math.max(0, durMs * s.t));
+      });
+    }
+
+    setTimeout(() => {
+      dot.remove();
+      if (onDone) onDone();
+    }, durMs + 80);
+
+    motion.beginElement();
+  }
+
+  // One full request lifecycle = forward (api → severity) → drop into store + return response
+  function fireRequest() {
+    const attackP = parseInt(document.getElementById("mix").value, 10) / 100;
+    const isAttack = Math.random() < attackP;
+    const color = isAttack ? ATTACK_COLOR : BENIGN_COLOR;
+    const forwardDur = 2400 + Math.random() * 600;
+
+    // Forward leg: client → api → pydantic → features → model → severity
+    spawnDot({
+      pathId: "pForward",
+      color,
+      durMs: forwardDur,
+      onStages: STAGES,
+      onDone: () => {
+        // Drop into store (every request, not only attacks)
+        spawnDot({
+          pathId: "pToStore",
+          color,
+          durMs: 700,
+          onStages: [{ node: "store", t: 1 }],
+        });
+        // Return JSON verdict back to client
+        spawnDot({
+          pathId: "pResponse",
+          color,
+          durMs: 1800,
+          onStages: [{ node: "resp", t: 0.92 }, { node: "client", t: 1.0 }],
+        });
+        // Bump counters
+        counters.total++;
+        if (isAttack) counters.attack++; else counters.benign++;
+        // simulated per-flow latency ~ 0.25 – 0.6 ms (matches /metrics on real runs)
+        counters.latencySum += 0.25 + Math.random() * 0.4;
+        elTotal.textContent  = counters.total.toLocaleString();
+        elBenign.textContent = counters.benign.toLocaleString();
+        elAttack.textContent = counters.attack.toLocaleString();
+        elLat.textContent    = (counters.latencySum / counters.total).toFixed(2);
+      },
+    });
+  }
+
+  // Dashboard poll loop — independent of the request loop
+  function firePoll() {
+    spawnDot({
+      pathId: "pPoll",
+      color: POLL_COLOR,
+      durMs: 2200,
+      onStages: [
+        { node: "dash",  t: 0.0 },
+        { node: "store", t: 0.95 },
+      ],
+    });
+  }
+
+  // Main scheduler
+  let timer = null;
+  let pollTimer = null;
+  let paused = false;
+  function reschedule() {
+    if (timer) clearTimeout(timer);
+    if (paused) return;
+    // throughput slider = requests per minute; convert to interval
+    const rpm = parseInt(document.getElementById("rate").value, 10);
+    const interval = Math.max(40, 60000 / rpm);
+    timer = setTimeout(() => {
+      fireRequest();
+      reschedule();
+    }, interval);
+  }
+
+  // controls
+  document.getElementById("rate").addEventListener("input", reschedule);
+  document.getElementById("mix").addEventListener("input", (e) => {
+    document.getElementById("mixval").textContent = e.target.value + "%";
+  });
+  document.getElementById("pause").addEventListener("click", (e) => {
+    paused = !paused;
+    e.target.textContent = paused ? "Resume" : "Pause";
+    if (!paused) reschedule();
+  });
+  document.getElementById("burst").addEventListener("click", () => {
+    // simulate a DDoS burst — 40 attack-coloured dots staggered over 1.5s
+    const orig = document.getElementById("mix").value;
+    for (let i = 0; i < 40; i++) {
+      setTimeout(() => {
+        document.getElementById("mix").value = "100";
+        fireRequest();
+      }, i * 35);
+    }
+    setTimeout(() => { document.getElementById("mix").value = orig; }, 2000);
+  });
+
+  // start
+  reschedule();
+  pollTimer = setInterval(firePoll, 4500);
+  // initial poll right away
+  firePoll();
+})();
+</script>
+</body>
+</html>
