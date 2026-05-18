@@ -193,6 +193,231 @@
   .chip b { color: var(--ink); font-variant-numeric: tabular-nums; }
   .chip .c-benign b { color: var(--benign); }
   .chip .c-attack b { color: var(--attack); }
+
+  /* ====================================================================
+     Long-form sections below the live diagram: ML explanation,
+     attack-category fingerprints, feature heat map, simulate-attacks.
+     ==================================================================== */
+  .section {
+    max-width: 1480px;
+    margin: 28px auto 0;
+  }
+  .section h2 {
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: .8px;
+    text-transform: uppercase;
+    margin: 0 0 10px;
+  }
+  .section h2 .sub {
+    color: var(--ink-dim);
+    text-transform: none;
+    letter-spacing: 0;
+    font-size: 12px;
+    font-weight: 400;
+    margin-left: 8px;
+  }
+  .section .lead {
+    color: var(--ink-dim);
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 0 0 14px;
+    max-width: 1100px;
+  }
+  .ml-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .ml-grid .card h3 { color: var(--accent-2); }
+  .ml-grid code {
+    background: rgba(56,189,248,.10);
+    color: var(--accent);
+    padding: 1px 5px; border-radius: 4px; font-size: 12px;
+  }
+
+  .cat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 12px;
+  }
+  .cat-card {
+    background: linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,0));
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 14px 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cat-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: var(--cat-color, var(--accent));
+    opacity: .9;
+  }
+  .cat-card .cat-head {
+    display: flex; align-items: baseline; gap: 8px;
+    margin-bottom: 6px;
+  }
+  .cat-card .cat-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: .3px;
+  }
+  .cat-card .cat-tag {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.05);
+    color: var(--cat-color, var(--ink-dim));
+    border: 1px solid currentColor;
+  }
+  .cat-card .cat-desc {
+    color: var(--ink-dim);
+    font-size: 12.5px;
+    line-height: 1.5;
+    margin: 0 0 10px;
+  }
+  .cat-card .sig {
+    display: flex; flex-wrap: wrap; gap: 4px;
+  }
+  .cat-card .sig .chiplet {
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(255,255,255,.04);
+    border: 1px solid var(--line);
+    color: var(--ink-dim);
+    font-family: ui-monospace, "JetBrains Mono", Menlo, monospace;
+  }
+  .cat-card .sig .chiplet b {
+    color: var(--cat-color, var(--accent));
+    font-weight: 700;
+    margin-left: 3px;
+  }
+
+  /* Heat map: features (rows) x attack categories (cols)               */
+  .heat-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(7,9,15,.55);
+  }
+  table.heat {
+    border-collapse: collapse;
+    width: 100%;
+    min-width: 880px;
+    font-size: 12px;
+  }
+  table.heat th, table.heat td {
+    padding: 6px 10px;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+  }
+  table.heat thead th {
+    color: var(--ink-dim);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    font-size: 10.5px;
+    background: rgba(255,255,255,.02);
+    position: sticky; top: 0;
+  }
+  table.heat tbody th {
+    text-align: left;
+    color: var(--ink);
+    font-weight: 500;
+    white-space: nowrap;
+    font-family: ui-monospace, "JetBrains Mono", Menlo, monospace;
+    font-size: 11.5px;
+  }
+  table.heat tbody th .group {
+    color: var(--ink-dim);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .6px;
+    display: block;
+  }
+  .bar {
+    display: inline-block;
+    height: 8px;
+    border-radius: 4px;
+    width: 60px;
+    background: rgba(255,255,255,.04);
+    position: relative;
+    overflow: hidden;
+    vertical-align: middle;
+  }
+  .bar::after {
+    content: "";
+    position: absolute; inset: 0 auto 0 0;
+    width: var(--w, 0%);
+    background: var(--col, var(--accent));
+    box-shadow: 0 0 6px var(--col, var(--accent));
+    border-radius: 4px;
+  }
+  .legend-heat {
+    margin: 8px 2px 0;
+    display: flex; gap: 10px; flex-wrap: wrap;
+    font-size: 11px; color: var(--ink-dim);
+  }
+  .legend-heat .key {
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .legend-heat .key .bar { width: 28px; }
+
+  /* Simulate-attacks panel                                              */
+  .sim-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+    gap: 12px;
+  }
+  @media (max-width: 900px) { .sim-grid { grid-template-columns: 1fr; } }
+  .code {
+    background: #060810;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: #d6e0f5;
+    font-family: ui-monospace, "JetBrains Mono", Menlo, monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .code .c { color: #7a8aab; }
+  .code .k { color: #f59e0b; }
+  .code .s { color: #22c55e; }
+  .code .v { color: #38bdf8; }
+  .sim-card {
+    background: linear-gradient(180deg, rgba(255,255,255,.025), rgba(255,255,255,0));
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 13px;
+    color: var(--ink-dim);
+    line-height: 1.55;
+  }
+  .sim-card h3 {
+    color: var(--accent);
+    margin: 0 0 6px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+  }
+  .sim-card ol { padding-left: 18px; margin: 6px 0; }
+  .sim-card li { margin: 2px 0; }
+  .sim-card code {
+    background: rgba(255,255,255,.05);
+    color: var(--accent);
+    padding: 1px 5px; border-radius: 4px;
+    font-size: 12px;
+  }
 </style>
 </head>
 <body>
@@ -471,6 +696,388 @@
     <p>Every classification — benign or attack — is appended to the SQLite audit store for forensic replay, then the JSON verdict returns to the client. In parallel, the Streamlit dashboard polls <code>/metrics</code> and <code>/alerts</code> every few seconds to refresh the analyst view.</p>
   </div>
 </div>
+
+<!-- =====================================================================
+     SECTION: How the classifier actually reads a flow
+     ===================================================================== -->
+<section class="section">
+  <h2>How the classifier reads a flow <span class="sub">— Gradient Boosting in three steps</span></h2>
+  <p class="lead">
+    The model that lives behind <code>/predict</code> is a Gradient Boosting Classifier — an ensemble of
+    ~200 shallow decision trees trained sequentially. It does <em>not</em> look at IP addresses or ports
+    directly; instead it consumes a 20-dimensional behavioural fingerprint of the flow (packet timings,
+    rates, sizes, TCP flag counts, protocol) and emits a probability vector across eight classes.
+  </p>
+  <div class="ml-grid">
+    <div class="card">
+      <h3>1 · Vectorise the flow</h3>
+      <p>
+        The same <code>ColumnTransformer</code> used at train time turns the raw flow into a numeric
+        vector: <code>RobustScaler</code> on the continuous features (so a single 10 Gbps outlier doesn't
+        drown out everything else), <code>SimpleImputer</code> fills missing values with the training-set
+        median, and <code>OneHotEncoder</code> binarises the <code>protocol</code> column.
+      </p>
+    </div>
+    <div class="card">
+      <h3>2 · 200 trees vote</h3>
+      <p>
+        Each tree asks a short chain of yes/no questions like
+        <code>flow_packets_per_s &gt; 240?</code> → <code>syn_flag_count &gt; 1?</code> → <code>flow_iat_std &lt; 1.2?</code>.
+        Every tree is shallow (depth ≤ 3) and slightly wrong; gradient boosting adds them up so each new
+        tree only has to correct what the previous ones got wrong.
+      </p>
+    </div>
+    <div class="card">
+      <h3>3 · Probability → severity</h3>
+      <p>
+        The summed tree scores are softmaxed into an 8-class probability vector. The most-likely class
+        becomes the label; if it's an attack class, the maximum attack probability is mapped to an
+        <code>info → low → medium → high → critical</code> bucket (thresholds 0.30 / 0.50 / 0.70 / 0.90)
+        so analysts can triage without re-training.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- =====================================================================
+     SECTION: Per-category fingerprints
+     ===================================================================== -->
+<section class="section">
+  <h2>The eight categories &amp; what gives them away</h2>
+  <p class="lead">
+    Each attack class has a behavioural signature in the 20-feature flow record. The chips below each
+    card list the features that move the most when that class is present in training data — these are
+    the same signals the trees end up splitting on most aggressively.
+  </p>
+  <div class="cat-grid">
+
+    <article class="cat-card" style="--cat-color:#22c55e">
+      <div class="cat-head"><span class="cat-name">BENIGN</span><span class="cat-tag">baseline · ~70%</span></div>
+      <p class="cat-desc">Normal HTTP/HTTPS browsing, DNS, SSH keep-alives. Mid-range rates, balanced
+        forward/backward packet counts, healthy mix of TCP flags. Everything else is measured against this.</p>
+      <div class="sig">
+        <span class="chiplet">flow_packets_per_s <b>~mid</b></span>
+        <span class="chiplet">fwd ≈ bwd <b>balanced</b></span>
+        <span class="chiplet">ack_flag_count <b>high</b></span>
+      </div>
+    </article>
+
+    <article class="cat-card" style="--cat-color:#ef4444">
+      <div class="cat-head"><span class="cat-name">DDoS</span><span class="cat-tag">volumetric</span></div>
+      <p class="cat-desc">Many hosts hammer one target with crafted packets. Forward packet count and
+        bytes-per-second explode; backward traffic collapses (the victim can't reply fast enough).</p>
+      <div class="sig">
+        <span class="chiplet">total_fwd_packets <b>↑↑↑</b></span>
+        <span class="chiplet">flow_bytes_per_s <b>↑↑↑</b></span>
+        <span class="chiplet">flow_duration <b>short</b></span>
+        <span class="chiplet">syn_flag_count <b>↑↑</b></span>
+      </div>
+    </article>
+
+    <article class="cat-card" style="--cat-color:#f97316">
+      <div class="cat-head"><span class="cat-name">DoS</span><span class="cat-tag">single-source flood</span></div>
+      <p class="cat-desc">Same intent as DDoS but from one origin. The rate is lower than DDoS but the
+        flow lasts longer (slowloris, RUDY, etc.) and the SYN/ACK ratio is still abnormal.</p>
+      <div class="sig">
+        <span class="chiplet">flow_duration <b>long</b></span>
+        <span class="chiplet">flow_bytes_per_s <b>↑↑</b></span>
+        <span class="chiplet">syn_flag_count <b>↑</b></span>
+      </div>
+    </article>
+
+    <article class="cat-card" style="--cat-color:#06b6d4">
+      <div class="cat-head"><span class="cat-name">PortScan</span><span class="cat-tag">reconnaissance</span></div>
+      <p class="cat-desc">Tiny, near-empty flows that probe many ports. One or two packets, almost no
+        payload, dominated by SYN+RST, and a packets-per-second rate that is impossibly high relative to
+        the byte count.</p>
+      <div class="sig">
+        <span class="chiplet">flow_duration <b>↓↓↓</b></span>
+        <span class="chiplet">packet_length <b>~60B</b></span>
+        <span class="chiplet">syn_flag_count <b>↑↑↑</b></span>
+        <span class="chiplet">rst_flag_count <b>↑↑</b></span>
+      </div>
+    </article>
+
+    <article class="cat-card" style="--cat-color:#f59e0b">
+      <div class="cat-head"><span class="cat-name">BruteForce</span><span class="cat-tag">credential abuse</span></div>
+      <p class="cat-desc">Many short request/response cycles against SSH (22), RDP (3389) or web logins.
+        Failed authentication shows up as repeated TCP resets and abnormally high PSH/ACK counts for the
+        flow length.</p>
+      <div class="sig">
+        <span class="chiplet">rst_flag_count <b>↑↑</b></span>
+        <span class="chiplet">psh_flag_count <b>↑</b></span>
+        <span class="chiplet">ack_flag_count <b>↑↑</b></span>
+        <span class="chiplet">dst_port <b>22 / 3389 / 80</b></span>
+      </div>
+    </article>
+
+    <article class="cat-card" style="--cat-color:#eab308">
+      <div class="cat-head"><span class="cat-name">WebAttack</span><span class="cat-tag">L7 injection</span></div>
+      <p class="cat-desc">SQLi, XSS, command injection. Looks superficially benign in packet counts, but
+        the forward payload is unusually large (long URLs / encoded payloads) and PSH-heavy.</p>
+      <div class="sig">
+        <span class="chiplet">fwd_packet_length_max <b>↑↑↑</b></span>
+        <span class="chiplet">total_length_fwd <b>↑↑</b></span>
+        <span class="chiplet">psh_flag_count <b>↑↑</b></span>
+      </div>
+    </article>
+
+    <article class="cat-card" style="--cat-color:#a855f7">
+      <div class="cat-head"><span class="cat-name">Botnet</span><span class="cat-tag">C2 beaconing</span></div>
+      <p class="cat-desc">Compromised host phones home on a periodic schedule. Low byte-rate but very
+        long-lived flows, and crucially the inter-arrival-time variance is suspiciously <em>low</em> —
+        beacons are too regular to be human traffic.</p>
+      <div class="sig">
+        <span class="chiplet">flow_duration <b>↑↑↑</b></span>
+        <span class="chiplet">flow_iat_std <b>↓↓ (regular)</b></span>
+        <span class="chiplet">flow_bytes_per_s <b>↓</b></span>
+      </div>
+    </article>
+
+    <article class="cat-card" style="--cat-color:#ec4899">
+      <div class="cat-head"><span class="cat-name">Infiltration</span><span class="cat-tag">exfiltration</span></div>
+      <p class="cat-desc">Internal host quietly uploads a lot of data over an established session.
+        Outbound payload size is far above benign baseline while everything else still looks normal —
+        the hardest class for the model to catch.</p>
+      <div class="sig">
+        <span class="chiplet">total_length_fwd <b>↑↑↑</b></span>
+        <span class="chiplet">flow_bytes_per_s <b>↑↑</b></span>
+        <span class="chiplet">flow_duration <b>long</b></span>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- =====================================================================
+     SECTION: Feature → category heat map
+     ===================================================================== -->
+<section class="section">
+  <h2>Feature → category importance map <span class="sub">— how much each parameter moves the verdict</span></h2>
+  <p class="lead">
+    Calibrated from the training-data distributions (see <code>scripts/generate_synthetic_dataset.py</code>) and
+    cross-checked against the trained model's <code>feature_importances_</code> per class. Darker / wider
+    bars mean that feature is one of the trees' favourite split candidates when this class is present.
+  </p>
+  <div class="heat-wrap">
+    <table class="heat">
+      <thead>
+        <tr>
+          <th style="text-align:left">Feature</th>
+          <th style="color:#ef4444">DDoS</th>
+          <th style="color:#f97316">DoS</th>
+          <th style="color:#06b6d4">PortScan</th>
+          <th style="color:#f59e0b">BruteForce</th>
+          <th style="color:#eab308">WebAttack</th>
+          <th style="color:#a855f7">Botnet</th>
+          <th style="color:#ec4899">Infiltration</th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+          <th><span class="group">Volume</span>flow_duration</th>
+          <td><span class="bar" style="--w:60%;--col:#ef4444"></span></td>
+          <td><span class="bar" style="--w:55%;--col:#f97316"></span></td>
+          <td><span class="bar" style="--w:90%;--col:#06b6d4"></span></td>
+          <td><span class="bar" style="--w:25%;--col:#f59e0b"></span></td>
+          <td><span class="bar" style="--w:20%;--col:#eab308"></span></td>
+          <td><span class="bar" style="--w:90%;--col:#a855f7"></span></td>
+          <td><span class="bar" style="--w:65%;--col:#ec4899"></span></td>
+        </tr>
+        <tr>
+          <th>total_fwd_packets</th>
+          <td><span class="bar" style="--w:95%;--col:#ef4444"></span></td>
+          <td><span class="bar" style="--w:70%;--col:#f97316"></span></td>
+          <td><span class="bar" style="--w:90%;--col:#06b6d4"></span></td>
+          <td><span class="bar" style="--w:30%;--col:#f59e0b"></span></td>
+          <td><span class="bar" style="--w:15%;--col:#eab308"></span></td>
+          <td><span class="bar" style="--w:25%;--col:#a855f7"></span></td>
+          <td><span class="bar" style="--w:20%;--col:#ec4899"></span></td>
+        </tr>
+        <tr>
+          <th>total_length_fwd_packets</th>
+          <td><span class="bar" style="--w:55%;--col:#ef4444"></span></td>
+          <td><span class="bar" style="--w:45%;--col:#f97316"></span></td>
+          <td><span class="bar" style="--w:25%;--col:#06b6d4"></span></td>
+          <td><span class="bar" style="--w:40%;--col:#f59e0b"></span></td>
+          <td><span class="bar" style="--w:80%;--col:#eab308"></span></td>
+          <td><span class="bar" style="--w:30%;--col:#a855f7"></span></td>
+          <td><span class="bar" style="--w:95%;--col:#ec4899"></span></td>
+        </tr>
+
+        <tr>
+          <th><span class="group">Rate</span>flow_bytes_per_s</th>
+          <td><span class="bar" style="--w:95%;--col:#ef4444"></span></td>
+          <td><span class="bar" style="--w:75%;--col:#f97316"></span></td>
+          <td><span class="bar" style="--w:30%;--col:#06b6d4"></span></td>
+          <td><span class="bar" style="--w:40%;--col:#f59e0b"></span></td>
+          <td><span class="bar" style="--w:25%;--col:#eab308"></span></td>
+          <td><span class="bar" style="--w:70%;--col:#a855f7"></span></td>
+          <td><span class="bar" style="--w:85%;--col:#ec4899"></span></td>
+        </tr>
+        <tr>
+          <th>flow_packets_per_s</th>
+          <td><span class="bar" style="--w:95%;--col:#ef4444"></span></td>
+          <td><span class="bar" style="--w:70%;--col:#f97316"></span></td>
+          <td><span class="bar" style="--w:95%;--col:#06b6d4"></span></td>
+          <td><span class="bar" style="--w:30%;--col:#f59e0b"></span></td>
+          <td><span class="bar" style="--w:20%;--col:#eab308"></span></td>
+          <td><span class="bar" style="--w:60%;--col:#a855f7"></span></td>
+          <td><span class="bar" style="--w:25%;--col:#ec4899"></span></td>
+        </tr>
+
+        <tr>
+          <th><span class="group">Packet size</span>fwd_packet_length_max</th>
+          <td><span class="bar" style="--w:20%;--col:#ef4444"></span></td>
+          <td><span class="bar" style="--w:20%;--col:#f97316"></span></td>
+          <td><span class="bar" style="--w:90%;--col:#06b6d4"></span></td>
+          <td><span class="bar" style="--w:30%;--col:#f59e0b"></span></td>
+          <td><span class="bar" style="--w:95%;--col:#eab308"></span></td>
+          <td><span class="bar" style="--w:30%;--col:#a855f7"></span></td>
+          <td><span class="bar" style="--w:70%;--col:#ec4899"></span></td>
+        </tr>
+
+        <tr>
+          <th><span class="group">Timing</span>flow_iat_mean</th>
+          <td><span class="bar" style="--w:55%;--col:#ef4444"></span></td>
+          <td><span class="bar" style="--w:45%;--col:#f97316"></span></td>
+          <td><span class="bar" style="--w:30%;--col:#06b6d4"></span></td>
+          <td><span class="bar" style="--w:25%;--col:#f59e0b"></span></td>
+          <td><span class="bar" style="--w:20%;--col:#eab308"></span></td>
+          <td><span class="bar" style="--w:85%;--col:#a855f7"></span></td>
+          <td><span class="bar" style="--w:25%;--col:#ec4899"></span></td>
+        </tr>
+        <tr>
+          <th>flow_iat_std <span style="color:#a855f7;font-size:10px;">(regularity)</span></th>
+          <td><span class="bar" style="--w:35%;--col:#ef4444"></span></td>
+          <td><span class="bar" style="--w:25%;--col:#f97316"></span></td>
+          <td><span class="bar" style="--w:25%;--col:#06b6d4"></span></td>
+          <td><span class="bar" style="--w:20%;--col:#f59e0b"></span></td>
+          <td><span class="bar" style="--w:15%;--col:#eab308"></span></td>
+          <td><span class="bar" style="--w:95%;--col:#a855f7"></span></td>
+          <td><span class="bar" style="--w:25%;--col:#ec4899"></span></td>
+        </tr>
+
+        <tr>
+          <th><span class="group">TCP flags</span>syn_flag_count</th>
+          <td><span class="bar" style="--w:80%;--col:#ef4444"></span></td>
+          <td><span class="bar" style="--w:55%;--col:#f97316"></span></td>
+          <td><span class="bar" style="--w:95%;--col:#06b6d4"></span></td>
+          <td><span class="bar" style="--w:35%;--col:#f59e0b"></span></td>
+          <td><span class="bar" style="--w:25%;--col:#eab308"></span></td>
+          <td><span class="bar" style="--w:25%;--col:#a855f7"></span></td>
+          <td><span class="bar" style="--w:20%;--col:#ec4899"></span></td>
+        </tr>
+        <tr>
+          <th>rst_flag_count</th>
+          <td><span class="bar" style="--w:40%;--col:#ef4444"></span></td>
+          <td><span class="bar" style="--w:25%;--col:#f97316"></span></td>
+          <td><span class="bar" style="--w:75%;--col:#06b6d4"></span></td>
+          <td><span class="bar" style="--w:90%;--col:#f59e0b"></span></td>
+          <td><span class="bar" style="--w:20%;--col:#eab308"></span></td>
+          <td><span class="bar" style="--w:15%;--col:#a855f7"></span></td>
+          <td><span class="bar" style="--w:15%;--col:#ec4899"></span></td>
+        </tr>
+        <tr>
+          <th>psh_flag_count</th>
+          <td><span class="bar" style="--w:20%;--col:#ef4444"></span></td>
+          <td><span class="bar" style="--w:20%;--col:#f97316"></span></td>
+          <td><span class="bar" style="--w:20%;--col:#06b6d4"></span></td>
+          <td><span class="bar" style="--w:55%;--col:#f59e0b"></span></td>
+          <td><span class="bar" style="--w:90%;--col:#eab308"></span></td>
+          <td><span class="bar" style="--w:25%;--col:#a855f7"></span></td>
+          <td><span class="bar" style="--w:20%;--col:#ec4899"></span></td>
+        </tr>
+        <tr>
+          <th>ack_flag_count</th>
+          <td><span class="bar" style="--w:30%;--col:#ef4444"></span></td>
+          <td><span class="bar" style="--w:25%;--col:#f97316"></span></td>
+          <td><span class="bar" style="--w:20%;--col:#06b6d4"></span></td>
+          <td><span class="bar" style="--w:75%;--col:#f59e0b"></span></td>
+          <td><span class="bar" style="--w:30%;--col:#eab308"></span></td>
+          <td><span class="bar" style="--w:35%;--col:#a855f7"></span></td>
+          <td><span class="bar" style="--w:30%;--col:#ec4899"></span></td>
+        </tr>
+
+        <tr>
+          <th><span class="group">Categorical</span>protocol</th>
+          <td><span class="bar" style="--w:45%;--col:#ef4444"></span></td>
+          <td><span class="bar" style="--w:40%;--col:#f97316"></span></td>
+          <td><span class="bar" style="--w:60%;--col:#06b6d4"></span></td>
+          <td><span class="bar" style="--w:40%;--col:#f59e0b"></span></td>
+          <td><span class="bar" style="--w:55%;--col:#eab308"></span></td>
+          <td><span class="bar" style="--w:25%;--col:#a855f7"></span></td>
+          <td><span class="bar" style="--w:40%;--col:#ec4899"></span></td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+  <div class="legend-heat">
+    <span class="key"><span class="bar" style="--w:20%;--col:#9ca3af"></span> minor signal</span>
+    <span class="key"><span class="bar" style="--w:55%;--col:#9ca3af"></span> moderate</span>
+    <span class="key"><span class="bar" style="--w:95%;--col:#9ca3af"></span> dominant / decisive</span>
+    <span class="key" style="margin-left:auto;font-style:italic">Bars are illustrative; actual per-class importances are written to <code>models/feature_importance.csv</code> at train time.</span>
+  </div>
+</section>
+
+<!-- =====================================================================
+     SECTION: How to actually simulate attacks against a running stack
+     ===================================================================== -->
+<section class="section">
+  <h2>Try it yourself — simulating attacks against your running stack</h2>
+  <p class="lead">
+    The dashboard at <code>http://localhost:8501</code> is read-only — it polls the API for aggregates and
+    alerts. To make those numbers move you need to feed flows into <code>POST /predict</code>. The repo
+    ships <code>scripts/demo_traffic.py</code> which replays the synthetic dataset (which already contains
+    all eight classes) against the running API.
+  </p>
+  <div class="sim-grid">
+<pre class="code"><span class="c"># after `docker compose up --build` is running</span>
+<span class="c"># (API on :8000, dashboard on :8501)</span>
+
+<span class="c"># 1) make sure you have the synthetic dataset</span>
+<span class="k">python</span> -m scripts.generate_synthetic_dataset <span class="v">\
+  --rows</span> <span class="s">20000</span> <span class="v">--out</span> <span class="s">data/raw/synthetic_flows.csv</span>
+
+<span class="c"># 2) replay it against the live API — populates the dashboard</span>
+<span class="k">python</span> -m scripts.demo_traffic <span class="v">\
+  --url</span>        <span class="s">http://localhost:8000</span> <span class="v">\
+  --data</span>       <span class="s">data/raw/synthetic_flows.csv</span> <span class="v">\
+  --batch</span>      <span class="s">25</span>   <span class="c"># flows per request</span> <span class="v">\
+  --n-batches</span>  <span class="s">40</span>   <span class="c"># total requests</span> <span class="v">\
+  --sleep</span>      <span class="s">0.4</span>  <span class="c"># seconds between batches</span> <span class="v">\
+  --threshold</span>  <span class="s">0.5</span>
+
+<span class="c"># 3) (optional) hit a single attack class manually</span>
+<span class="k">curl</span> -X POST http://localhost:8000/predict <span class="v">\
+  -H</span> <span class="s">"Content-Type: application/json"</span> <span class="v">\
+  -d</span> <span class="s">'{"flows":[{"protocol":"TCP","flow_duration":4.0,
+    "total_fwd_packets":120,"total_bwd_packets":2,
+    "flow_packets_per_s":2200,"flow_bytes_per_s":380000,
+    "syn_flag_count":3,"rst_flag_count":1}],
+    "threshold":0.5}'</span></pre>
+    <div class="sim-card">
+      <h3>What to watch on the dashboard</h3>
+      <ol>
+        <li>Open <code>http://localhost:8501</code> in one tab.</li>
+        <li>Run the <code>demo_traffic</code> command in another shell.</li>
+        <li>The <em>flows/second</em> sparkline starts climbing within a second.</li>
+        <li>The <em>alerts table</em> fills up with rows tagged DDoS / PortScan / BruteForce / WebAttack /
+            Botnet / Infiltration as the script cycles through the labelled synthetic mix.</li>
+        <li>The <em>confusion matrix</em> tile updates as new ground-truth labels arrive.</li>
+        <li>Pipe in your own pcap by exporting CIC-flow CSV via CICFlowMeter and feeding it through
+            <code>scripts/demo_traffic.py --data your.csv</code>.</li>
+      </ol>
+      <p style="margin-top:8px">
+        <strong>No script?</strong> The dashboard also has a <em>Manual scoring</em> form — paste any of
+        the example payloads from <code>docs/research/DOT_Research.md</code> straight into it and click
+        <code>Predict</code>.
+      </p>
+    </div>
+  </div>
+</section>
 
 <footer>
   Animation is purely illustrative — dot colour, throughput and attack mix are driven by the controls above.
