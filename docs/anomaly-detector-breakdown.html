@@ -143,15 +143,29 @@
   .node-icon   { fill: var(--accent); }
   .path-line {
     fill: none;
-    stroke: rgba(56,189,248,.25);
-    stroke-width: 1.8;
-    stroke-dasharray: 5 6;
-    animation: dashflow 18s linear infinite;
+    stroke: rgba(56,189,248,.75);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-dasharray: 2 8;
+    filter: drop-shadow(0 0 4px rgba(56,189,248,.35));
+    animation: dashflow 6s linear infinite;
   }
-  .path-line.return { stroke: rgba(34,197,94,.20); }
-  .path-line.poll   { stroke: rgba(129,140,248,.25); }
+  .path-line.return {
+    stroke: rgba(34,197,94,.70);
+    filter: drop-shadow(0 0 4px rgba(34,197,94,.30));
+  }
+  .path-line.poll {
+    stroke: rgba(129,140,248,.70);
+    filter: drop-shadow(0 0 4px rgba(129,140,248,.30));
+  }
+  .path-line.motion-only {
+    /* used only for animateMotion — invisible visually */
+    stroke: none;
+    filter: none;
+    animation: none;
+  }
   @keyframes dashflow {
-    to { stroke-dashoffset: -200; }
+    to { stroke-dashoffset: -120; }
   }
 
   /* dot pulse around active node */
@@ -241,57 +255,45 @@
         </feMerge>
       </filter>
 
-      <!-- arrowheads (subtle) -->
-      <marker id="arrowOut" viewBox="0 0 10 10" refX="9" refY="5"
-              markerWidth="7" markerHeight="7" orient="auto">
-        <path d="M0,0 L10,5 L0,10 Z" fill="rgba(56,189,248,.55)"/>
+      <!-- arrowheads (prominent, glowing) -->
+      <marker id="arrowOut" viewBox="0 0 12 12" refX="10" refY="6"
+              markerWidth="9" markerHeight="9" orient="auto">
+        <path d="M0,0 L12,6 L0,12 L3,6 Z" fill="#38bdf8"
+              style="filter: drop-shadow(0 0 3px rgba(56,189,248,.8))"/>
       </marker>
-      <marker id="arrowBack" viewBox="0 0 10 10" refX="9" refY="5"
-              markerWidth="7" markerHeight="7" orient="auto">
-        <path d="M0,0 L10,5 L0,10 Z" fill="rgba(34,197,94,.55)"/>
+      <marker id="arrowBack" viewBox="0 0 12 12" refX="10" refY="6"
+              markerWidth="9" markerHeight="9" orient="auto">
+        <path d="M0,0 L12,6 L0,12 L3,6 Z" fill="#22c55e"
+              style="filter: drop-shadow(0 0 3px rgba(34,197,94,.8))"/>
       </marker>
-      <marker id="arrowPoll" viewBox="0 0 10 10" refX="9" refY="5"
+      <marker id="arrowPoll" viewBox="0 0 12 12" refX="10" refY="6"
+              markerWidth="9" markerHeight="9" orient="auto">
+        <path d="M0,0 L12,6 L0,12 L3,6 Z" fill="#818cf8"
+              style="filter: drop-shadow(0 0 3px rgba(129,140,248,.8))"/>
+      </marker>
+      <!-- mid-path direction chevrons (smaller, no glow) -->
+      <marker id="midChev" viewBox="0 0 10 10" refX="5" refY="5"
               markerWidth="7" markerHeight="7" orient="auto">
-        <path d="M0,0 L10,5 L0,10 Z" fill="rgba(129,140,248,.55)"/>
+        <path d="M0,1 L8,5 L0,9 Z" fill="rgba(255,255,255,.55)"/>
+      </marker>
+      <marker id="midChevReturn" viewBox="0 0 10 10" refX="5" refY="5"
+              markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0,1 L8,5 L0,9 Z" fill="rgba(187,247,208,.65)"/>
+      </marker>
+      <marker id="midChevPoll" viewBox="0 0 10 10" refX="5" refY="5"
+              markerWidth="7" markerHeight="7" orient="auto">
+        <path d="M0,1 L8,5 L0,9 Z" fill="rgba(199,210,254,.60)"/>
       </marker>
 
-      <!-- The flow path: client -> api -> pydantic -> features -> model -> severity -> store -->
+      <!-- Master MOTION paths (invisible) used solely for dot animateMotion.
+           Each one mirrors the visible arrow geometry so the glowing dot
+           appears to ride the arrows from one node to the next. -->
       <path id="pForward"
-            d="M 130 360
-               C 200 360, 240 360, 290 360
-               L 410 360
-               C 470 360, 490 360, 530 360
-               L 650 360
-               C 700 360, 720 360, 770 360
-               L 890 360
-               C 940 360, 960 360, 1010 360
-               L 1130 360
-               C 1180 360, 1200 360, 1250 360
-               L 1330 360"
-            class="path-line" marker-end="url(#arrowOut)"/>
-
-      <!-- severity -> store (drop down) -->
+            d="M 130 360 L 1230 360"
+            class="path-line motion-only"/>
       <path id="pToStore"
-            d="M 1330 360
-               C 1380 360, 1400 320, 1400 240
-               L 1400 200"
-            class="path-line" marker-end="url(#arrowOut)"/>
-
-      <!-- response: from severity (south) back along the bottom to the client -->
-      <path id="pResponse"
-            d="M 1310 380
-               C 1310 470, 1280 540, 1180 560
-               L 230 560
-               C 160 560, 130 510, 130 420"
-            class="path-line return" marker-end="url(#arrowBack)"/>
-
-      <!-- dashboard polls /metrics and /alerts -->
-      <path id="pPoll"
-            d="M 280 700
-               C 400 700, 600 700, 900 700
-               C 1200 700, 1350 660, 1390 580
-               L 1400 240"
-            class="path-line poll" marker-end="url(#arrowPoll)"/>
+            d="M 1230 360 L 1290 360 L 1290 160 L 1320 160"
+            class="path-line motion-only"/>
 
       <!-- subtle background grid -->
       <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
@@ -301,6 +303,52 @@
 
     <!-- background grid -->
     <rect width="1480" height="780" fill="url(#grid)"/>
+
+    <!-- ============================================================ -->
+    <!-- VISIBLE FLOW ARROWS                                          -->
+    <!-- The motion paths above are inside <defs> (invisible). These  -->
+    <!-- visible siblings overlay the same geometry so the glowing    -->
+    <!-- dots appear to ride the arrows from one node to the next.    -->
+    <!-- ============================================================ -->
+    <!-- Forward chain: one short dotted arrow per gap between nodes -->
+    <g id="forwardArrows">
+      <line class="path-line" x1="210" y1="360" x2="246" y2="360" marker-end="url(#arrowOut)"/>
+      <line class="path-line" x1="410" y1="360" x2="446" y2="360" marker-end="url(#arrowOut)"/>
+      <line class="path-line" x1="610" y1="360" x2="646" y2="360" marker-end="url(#arrowOut)"/>
+      <line class="path-line" x1="810" y1="360" x2="846" y2="360" marker-end="url(#arrowOut)"/>
+      <line class="path-line" x1="1010" y1="360" x2="1046" y2="360" marker-end="url(#arrowOut)"/>
+    </g>
+
+    <!-- Severity -> Store elbow. Three segments so marker-mid renders a
+         direction chevron at each bend; marker-end puts the arrowhead at
+         the store's left edge. -->
+    <path class="path-line"
+          d="M 1230 360 L 1290 360 L 1290 160 L 1316 160"
+          marker-mid="url(#midChev)"
+          marker-end="url(#arrowOut)"/>
+
+    <!-- Response: severity-bottom -> JSON-verdict node -> client (green) -->
+    <path id="pResponseVis"
+          d="M 1140 400 L 1140 575 L 130 575 L 130 416"
+          class="path-line return"
+          marker-mid="url(#midChevReturn)"
+          marker-end="url(#arrowBack)"/>
+
+    <!-- Dashboard poll: dashboard -> store (indigo) -->
+    <path id="pPollVis"
+          d="M 350 660 L 800 660 L 1390 400 L 1390 204"
+          class="path-line poll"
+          marker-mid="url(#midChevPoll)"
+          marker-end="url(#arrowPoll)"/>
+
+    <!-- Motion-only copies of the above (kept in plain SVG so animateMotion
+         can mpath-reference them). Hidden via .motion-only class. -->
+    <path id="pResponse"
+          d="M 1140 400 L 1140 575 L 130 575 L 130 416"
+          class="path-line motion-only"/>
+    <path id="pPoll"
+          d="M 350 660 L 800 660 L 1390 400 L 1390 204"
+          class="path-line motion-only"/>
 
     <!-- section labels -->
     <text x="40"   y="36" class="node-sub" fill="#7a8aab">REQUEST</text>
@@ -438,14 +486,16 @@
   const BENIGN_COLOR = "#22c55e";
   const POLL_COLOR   = "#818cf8";
 
-  // Stage hit-points along pForward at fractional path positions
+  // Stage hit-points along pForward at fractional path positions.
+  // pForward runs straight from x=130 (client centre) to x=1230 (severity right edge),
+  // length 1100 px. Each node centre's t = (x_centre - 130) / 1100.
   const STAGES = [
-    { node: "client",   t: 0.00 },
-    { node: "api",      t: 0.16 },
-    { node: "pydantic", t: 0.34 },
-    { node: "features", t: 0.52 },
-    { node: "model",    t: 0.70 },
-    { node: "severity", t: 0.88 },
+    { node: "client",   t: 0.00 },  // x=130
+    { node: "api",      t: 0.18 },  // x=330
+    { node: "pydantic", t: 0.36 },  // x=530
+    { node: "features", t: 0.55 },  // x=730
+    { node: "model",    t: 0.73 },  // x=930
+    { node: "severity", t: 0.92 },  // x=1140
   ];
 
   // Cache node pulse circles
