@@ -1,8 +1,8 @@
 # Network Traffic Anomaly Detector
 
-Personal Research Project (PRP) — Cybersecurity Minor: **Attack & Defend** (Fontys University of Applied Sciences, Spring 2026)
+Personal Research Project (PRP) — Cybersecurity Minor: **Attack & Defend** (Fontys University of Applied Sciences,  Spring 2026)
 
-**Author:** Angel Rusev (i530375) · BSc ICT & Software Engineering · Minor: Cybersecurity — Attack & Defend
+**Author:** Angel Rusev · BSc ICT & Software Engineering · Minor: Cybersecurity — Attack & Defend
 
 ---
 
