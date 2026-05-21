@@ -1,0 +1,190 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--glass-bg);
+  backdrop-filter: saturate(180%) blur(var(--glass-blur));
+  -webkit-backdrop-filter: saturate(180%) blur(var(--glass-blur));
+  border-bottom: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-md), var(--shadow-inset-top);
+}
+
+.navbar::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--accent) 60%, transparent) 50%,
+    transparent 100%
+  );
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.navbar-inner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 64px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  flex-wrap: wrap;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+.brand-text strong {
+  font-family: "Inter", system-ui, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.brand-text small {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  margin-right: auto;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  flex-wrap: nowrap;
+  max-width: 100%;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-inset-top);
+}
+
+.tab {
+  appearance: none;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-muted);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 500;
+  white-space: nowrap;
+  min-height: 36px;
+  transition: background 160ms ease, color 160ms ease, border-color 160ms ease;
+}
+.tab:hover { color: var(--text); background: color-mix(in srgb, var(--text) 6%, transparent); }
+.tab.active {
+  border-radius: 50px;
+  background: linear-gradient(45deg, #4321516b, transparent);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  border: none;
+  box-shadow: inset 0px 0px 3px 2px #9457ff;
+  color: var(--accent-contrast);
+}
+.tab.active:hover {
+  background: linear-gradient(45deg, #4321516b, transparent);
+}
+
+.navbar-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-inset-top);
+}
+.status-pill .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  position: relative;
+  animation: status-breathe 2.4s var(--ease) infinite;
+}
+.status-pill .dot::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0.6;
+  animation: status-ripple 2.4s var(--ease) infinite;
+}
+
+@keyframes status-breathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.18); }
+}
+@keyframes status-ripple {
+  0%   { transform: scale(0.5); opacity: 0.7; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .status-pill .dot,
+  .status-pill .dot::after { animation: none; }
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--text);
+  box-shadow: var(--shadow-inset-top);
+  transition: background 200ms var(--ease), color 200ms var(--ease),
+              transform 80ms var(--ease), box-shadow 200ms var(--ease);
+}
+.theme-toggle:hover {
+  background: var(--glass-bg-strong);
+  box-shadow: 0 0 16px var(--accent-glow), var(--shadow-inset-top);
+}
+.theme-toggle:active { transform: translateY(1px) scale(0.95); }
+
+@media (max-width: 900px) {
+  .tabs {
+    order: 3;
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .navbar-meta { margin-left: auto; }
+}
+
+@media (max-width: 540px) {
+  .status-label { display: none; }
+  .brand-text small { display: none; }
+}

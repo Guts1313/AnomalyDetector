@@ -1,0 +1,77 @@
+.empty-alerts {
+  color: var(--text-muted);
+  display: block;
+  margin: 0 auto;
+  max-width: 480px;
+}
+
+.ea-node-ring {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.2;
+  opacity: 0.4;
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: ea-ring-pulse 3s var(--ease) infinite;
+}
+
+.ea-node-dot {
+  fill: var(--accent);
+  filter: drop-shadow(0 0 6px var(--accent-glow));
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: ea-dot-pulse 3s var(--ease) infinite;
+}
+
+.ea-node { animation: ea-node-bob 4s var(--ease) infinite; }
+
+@keyframes ea-ring-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.4; }
+  50%      { transform: scale(1.5); opacity: 0; }
+}
+@keyframes ea-dot-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.25); }
+}
+@keyframes ea-node-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2px); }
+}
+
+.ea-beam {
+  animation: ea-scan 5s var(--ease) infinite;
+}
+@keyframes ea-scan {
+  0%   { transform: translateX(0); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateX(300px); opacity: 0; }
+}
+
+.ea-check {
+  color: var(--sev-info);
+  transform-origin: center;
+  transform-box: fill-box;
+  animation: ea-check-in 1.2s var(--ease) 0.4s both, ea-check-bob 4s var(--ease) 1.6s infinite;
+}
+.ea-check-bg {
+  fill: color-mix(in srgb, var(--sev-info) 18%, transparent);
+  stroke: color-mix(in srgb, var(--sev-info) 60%, transparent);
+  stroke-width: 1;
+}
+
+@keyframes ea-check-in {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes ea-check-bob {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ea-node-ring, .ea-node-dot, .ea-node,
+  .ea-beam, .ea-check { animation: none; }
+  .ea-node-ring { opacity: 0.4; }
+}

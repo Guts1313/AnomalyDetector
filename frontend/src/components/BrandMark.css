@@ -1,0 +1,49 @@
+.brand-mark {
+  color: var(--accent);
+  filter: drop-shadow(0 0 8px var(--accent-glow));
+  flex-shrink: 0;
+}
+
+.bm-ring {
+  transform-origin: 20px 20px;
+  transform-box: fill-box;
+  opacity: 0;
+  animation: bm-radar 2.6s var(--ease) infinite;
+}
+.bm-ring-1 { animation-delay: 0s; }
+.bm-ring-2 { animation-delay: 0.85s; }
+.bm-ring-3 { animation-delay: 1.7s; }
+
+@keyframes bm-radar {
+  0%   { transform: scale(0.4); opacity: 0; stroke-width: 2; }
+  20%  { opacity: 0.9; }
+  100% { transform: scale(2.5); opacity: 0; stroke-width: 0.4; }
+}
+
+.bm-core {
+  transform-origin: 20px 20px;
+  transform-box: fill-box;
+  animation: bm-pulse 2.6s var(--ease) infinite;
+}
+
+@keyframes bm-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.15); opacity: 0.85; }
+}
+
+.bm-halo {
+  transform-origin: 20px 20px;
+  transform-box: fill-box;
+  animation: bm-halo 2.6s var(--ease) infinite;
+  opacity: 0.35;
+}
+
+@keyframes bm-halo {
+  0%, 100% { transform: scale(1); opacity: 0.35; }
+  50%      { transform: scale(1.35); opacity: 0.6; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bm-ring, .bm-core, .bm-halo { animation: none; }
+  .bm-ring { opacity: 0.4; }
+}

@@ -1,0 +1,61 @@
+# Lab compose — runs alongside the root docker-compose.yml.
+#
+# Bring up the api first:
+#     docker compose up -d api
+# Then this lab:
+#     docker compose -f lab/docker-compose.yml up --build -d
+# Tear down:
+#     docker compose -f lab/docker-compose.yml down
+#
+# Service exposure:
+#   attacker → http://localhost:8001  (POST /attack, GET /tools, GET /health)
+#   defender → http://localhost:8002  (GET  /blocks, GET /health)
+#   defender also listens on :80 (nginx) and :22 (sshd) inside the lab network;
+#   we don't expose those to the host because the attacker reaches them
+#   directly via the docker bridge.
+services:
+  attacker:
+    build: ./attacker
+    image: ad-attacker:0.1.0
+    container_name: ad-attacker
+    ports:
+      - "8001:8001"
+    networks:
+      - lab
+      - ad-default   # to reach the api if the attacker ever needs it
+    restart: unless-stopped
+
+  defender:
+    build: ./defender
+    image: ad-defender:0.1.0
+    container_name: ad-defender
+    # tcpdump + iptables require these caps.
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+    ports:
+      - "8002:8002"
+    networks:
+      lab:
+        aliases: [defender, target]   # both names resolve to this container
+      ad-default: {}                  # to reach the api
+    environment:
+      - AD_API_URL=http://api:8000
+      - CAPTURE_IFACE=eth0
+      - ATTACK_SCORE_MIN=0.7
+      - BLOCK_TTL_S=120
+      - BLOCK_ENABLED=1
+      # Don't block the api or attacker control plane by accident.
+      # (The attacker's data-plane traffic IS what we want to classify+block,
+      # and that comes from the lab subnet, not from these IPs.)
+      - BLOCK_IGNORE=127.0.0.1
+    restart: unless-stopped
+    depends_on:
+      - attacker
+
+networks:
+  lab:
+    driver: bridge
+  ad-default:
+    external: true
+    name: anomalydetector_default

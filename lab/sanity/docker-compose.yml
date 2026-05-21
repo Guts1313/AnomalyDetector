@@ -1,0 +1,54 @@
+# Phase 0 sanity test: runs alongside the main docker-compose.
+#
+# What this compose creates:
+#   target  — bare nginx, the victim of the nmap scan. Exists only to have a
+#             socket nmap can hit; no real service logic.
+#   sanity  — one-shot container that runs nmap, captures, extracts flows,
+#             and POSTs them to the existing api at http://api:8000.
+#
+# How it talks to the existing api: by joining the *external* network that the
+# root docker-compose.yml created (named `<project>_default`). We assume the
+# default project name "anomalydetector" — adjust if you start the root
+# compose with a different `-p`.
+#
+# Run:
+#   docker compose --project-directory ../.. up -d api          # start backend if not running
+#   docker compose -f lab/sanity/docker-compose.yml build sanity
+#   docker compose -f lab/sanity/docker-compose.yml run --rm sanity
+#   docker compose -f lab/sanity/docker-compose.yml down
+
+services:
+  target:
+    image: nginx:alpine
+    container_name: sanity-target
+    networks:
+      lab:
+        aliases: [target]
+
+  sanity:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sanity-runner
+    # tcpdump needs raw socket access; nmap's SYN scan needs raw sockets too.
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+    depends_on:
+      - target
+    networks:
+      - lab          # so the scan target resolves as `target`
+      - ad-default   # so the api resolves as `api`
+    environment:
+      - AD_API_URL=http://api:8000
+      - SCAN_TARGET=target
+
+networks:
+  lab:
+    driver: bridge
+  # Reference the network created by the root docker-compose.yml.
+  # The name `anomalydetector_default` assumes the root compose is run from
+  # the project root (the dir basename becomes the project name).
+  ad-default:
+    external: true
+    name: anomalydetector_default
