@@ -14,6 +14,10 @@ export default function VerdictCard({ result, title = "Verdict" }: Props) {
   if (!v) return null;
   const probs = Object.entries(v.class_probabilities ?? {})
     .sort((a, b) => b[1] - a[1]);
+  // Show probability of the predicted class, not attack_score. For BENIGN
+  // verdicts attack_score is the *complement* (~1 - p(BENIGN)), which reads
+  // as a confusingly low number next to a confident BENIGN bar in the chart.
+  const verdictProb = v.class_probabilities?.[v.verdict] ?? v.attack_score;
 
   return (
     <div className="card">
@@ -22,7 +26,7 @@ export default function VerdictCard({ result, title = "Verdict" }: Props) {
         <CategoryBadge category={v.verdict} />
         <SeverityBadge severity={v.severity} />
         <span className="mono" style={{ color: "var(--text-muted)" }}>
-          score {v.attack_score.toFixed(3)}
+          score {verdictProb.toFixed(3)}
         </span>
       </header>
 
