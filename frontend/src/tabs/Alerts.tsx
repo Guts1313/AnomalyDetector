@@ -3,6 +3,7 @@ import { api } from "../api/client";
 import type { Alert } from "../api/types";
 import { SeverityBadge } from "../components/Badge";
 import EmptyAlerts from "../components/EmptyAlerts";
+import { formatAmsterdam } from "../lib/time";
 
 type SortKey = "timestamp" | "verdict" | "severity" | "attack_score" | "src_ip" | "dst_ip" | "model_name";
 type SortDir = "asc" | "desc";
@@ -14,7 +15,7 @@ function compare(a: Alert, b: Alert, key: SortKey): number {
   const bv = b[key];
   if (key === "severity") return (SEV_RANK[String(av)] ?? -1) - (SEV_RANK[String(bv)] ?? -1);
   if (key === "attack_score") return (Number(av) || 0) - (Number(bv) || 0);
-  if (key === "timestamp") return new Date(String(av)).getTime() - new Date(String(bv)).getTime();
+  if (key === "timestamp") return new Date(`${String(av)}Z`).getTime() - new Date(`${String(bv)}Z`).getTime();
   return String(av ?? "").localeCompare(String(bv ?? ""));
 }
 
@@ -77,7 +78,7 @@ export default function Alerts() {
           <table className="data-table">
             <thead>
               <tr>
-                <Th k="timestamp" label="Time (UTC)" sortKey={sortKey} ariaSort={ariaSort} toggle={toggleSort} />
+                <Th k="timestamp" label="Time (Amsterdam)" sortKey={sortKey} ariaSort={ariaSort} toggle={toggleSort} />
                 <Th k="verdict" label="Verdict" sortKey={sortKey} ariaSort={ariaSort} toggle={toggleSort} />
                 <Th k="severity" label="Severity" sortKey={sortKey} ariaSort={ariaSort} toggle={toggleSort} />
                 <Th k="attack_score" label="Attack score" sortKey={sortKey} ariaSort={ariaSort} toggle={toggleSort} />
@@ -89,7 +90,7 @@ export default function Alerts() {
             <tbody>
               {sorted.map((a) => (
                 <tr key={a.id}>
-                  <td className="mono">{new Date(a.timestamp).toISOString().replace("T", " ").slice(0, 19)}</td>
+                  <td className="mono">{formatAmsterdam(a.timestamp)}</td>
                   <td>{a.verdict}</td>
                   <td><SeverityBadge severity={a.severity} /></td>
                   <td>

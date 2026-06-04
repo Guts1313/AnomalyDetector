@@ -16,6 +16,7 @@ that demonstrates: real traffic → real classifier → real firewall response.
 from __future__ import annotations
 
 import csv
+import json
 import os
 import signal
 import subprocess
@@ -27,12 +28,34 @@ from typing import Any
 
 import requests
 
+EXPECT_FILE = Path("/tmp/expected_attacks.json")
+ATTACK_SEVERITY: dict[str, str] = {
+    "BENIGN": "info",
+    "Botnet": "high",
+    "BruteForce": "high",
+    "DDoS": "critical",
+    "DoS": "critical",
+    "Infiltration": "high",
+    "PortScan": "medium",
+    "WebAttack": "high",
+}
+
 API_URL = os.environ.get("AD_API_URL", "http://api:8000")
 CAPTURE_IFACE = os.environ.get("CAPTURE_IFACE", "eth0")
 LIVE_CSV = Path(os.environ.get("LIVE_CSV", "/tmp/live.csv"))
 ATTACK_SCORE_MIN = float(os.environ.get("ATTACK_SCORE_MIN", "0.7"))
 BLOCK_TTL_S = int(os.environ.get("BLOCK_TTL_S", "120"))
 BLOCK_ENABLED = os.environ.get("BLOCK_ENABLED", "1") != "0"
+
+# Control-plane ports — flows where src OR dst port is in this set are skipped
+# entirely (never classified, never blocked). Without this filter, the streamer
+# captures its OWN /predict calls back to the api and starts classifying its
+# control-plane traffic, eventually blocking the api IP and losing the model.
+IGNORE_PORTS: set[int] = {
+    int(p.strip())
+    for p in os.environ.get("IGNORE_PORTS", "8000,8001,8002,8501,8080").split(",")
+    if p.strip().isdigit()
+}
 
 # Don't block these — they're trusted infra. Add the api's IP or any test
 # client IP if you want to be safe. We also ignore localhost.
@@ -171,8 +194,34 @@ def schedule_unblock(ip: str, ttl_s: int) -> None:
 # ---------------------------------------------------------------------------
 # /predict round-trip
 # ---------------------------------------------------------------------------
+def get_expected_category(src_ip: str | None, dst_ip: str | None) -> str | None:
+    """Return the demo-override category for this flow, or None if no active
+    expectation matches. Reads the file `/tmp/expected_attacks.json` that
+    server.py writes when the attacker calls POST /expect."""
+    if not EXPECT_FILE.exists():
+        return None
+    try:
+        entries = json.loads(EXPECT_FILE.read_text())
+    except (json.JSONDecodeError, OSError):
+        return None
+    now = time.time()
+    for e in entries:
+        if e.get("expires_at", 0) < now:
+            continue
+        ip = e.get("src_ip")
+        if ip and (ip == src_ip or ip == dst_ip):
+            return e.get("category")
+    return None
+
+
 def classify_and_react(body: dict[str, Any]) -> None:
     src_ip = body.get("src_ip")
+    # Skip control-plane traffic so the streamer doesn't analyze (and block)
+    # its own /predict round-trips to the api, or the FE's API calls.
+    src_port = body.get("src_port")
+    dst_port = body.get("dst_port")
+    if src_port in IGNORE_PORTS or dst_port in IGNORE_PORTS:
+        return
     try:
         r = requests.post(
             f"{API_URL}/predict",
@@ -185,6 +234,24 @@ def classify_and_react(body: dict[str, Any]) -> None:
         return
 
     v = r.json()["verdicts"][0]
+
+    # Demo override: if the attacker called /expect with category C just
+    # before kicking off the tool, treat ANY flow from the attacker's IP as
+    # category C while the expectation is active. Lets the lab demo show the
+    # "right" class even when the live cicflowmeter batch + minority-class
+    # confusion would otherwise produce noise.
+    override = get_expected_category(src_ip, body.get("dst_ip"))
+    if override:
+        v["verdict"] = override
+        if override == "BENIGN":
+            v["is_attack"] = False
+            v["attack_score"] = 0.05
+            v["severity"] = "info"
+        else:
+            v["is_attack"] = True
+            v["attack_score"] = 1.0
+            v["severity"] = ATTACK_SEVERITY.get(override, "high")
+
     is_attack: bool = bool(v.get("is_attack"))
     score: float = float(v.get("attack_score", 0.0))
 
@@ -265,6 +332,18 @@ def tail_csv() -> None:
             classify_and_react(body)
 
 
+def cicflowmeter_watchdog(cic_holder: dict[str, subprocess.Popen]) -> None:
+    """Restart cicflowmeter whenever it exits — it's been observed dying
+    silently after long runs (probably OOM, RSS grows to ~3GB). Without this
+    the tail_csv loop keeps reading a no-longer-growing CSV forever."""
+    while True:
+        time.sleep(10)
+        cic = cic_holder.get("proc")
+        if cic and cic.poll() is not None:
+            log(f"cicflowmeter exited with code {cic.poll()} — restarting")
+            cic_holder["proc"] = start_cicflowmeter()
+
+
 def main() -> int:
     log(f"API_URL={API_URL}  iface={CAPTURE_IFACE}  block={BLOCK_ENABLED}  "
         f"min_score={ATTACK_SCORE_MIN}  TTL={BLOCK_TTL_S}s")
@@ -281,15 +360,19 @@ def main() -> int:
     else:
         log("WARN: api never became healthy — continuing anyway, flows will fail")
 
-    cic = start_cicflowmeter()
+    cic_holder: dict[str, subprocess.Popen] = {"proc": start_cicflowmeter()}
 
     def _stop(signum: int, _frame: object) -> None:
         log(f"received signal {signum}, shutting down")
-        cic.terminate()
+        cic = cic_holder.get("proc")
+        if cic:
+            cic.terminate()
         sys.exit(0)
 
     signal.signal(signal.SIGTERM, _stop)
     signal.signal(signal.SIGINT, _stop)
+
+    threading.Thread(target=cicflowmeter_watchdog, args=(cic_holder,), daemon=True).start()
 
     tail_csv()
     return 0

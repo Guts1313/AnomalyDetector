@@ -9,6 +9,7 @@ import Examples from "./tabs/Examples";
 import About from "./tabs/About";
 import { api } from "./api/client";
 import type { Health } from "./api/types";
+import { nowTimeAmsterdam } from "./lib/time";
 
 const TABS: TabDef[] = [
   { id: "overview", label: "Overview" },
@@ -62,7 +63,7 @@ export default function App() {
           <span>
             API: <code>{import.meta.env.VITE_API_URL ?? "/api"}</code>
           </span>
-          <span>Refreshed {new Date().toISOString().slice(11, 19)} UTC</span>
+          <span>Refreshed {nowTimeAmsterdam()} (Amsterdam)</span>
         </footer>
       </main>
     </div>

@@ -16,6 +16,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 #   python3-pip + fastapi - the /attack HTTP wrapper
 RUN apt-get update && apt-get install -y --no-install-recommends \
         nmap hping3 hydra sqlmap \
+        apache2-utils slowhttptest \
         curl netcat-openbsd tcpdump iputils-ping dnsutils \
         python3 python3-pip ca-certificates \
     && rm -rf /var/lib/apt/lists/*
