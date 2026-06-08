@@ -75,3 +75,31 @@ to **security risk** of the running detector:
 * "Common risk-analysis method" ← Impact × Likelihood × Mitigation matrix in §3 + the PRP risk register.
 * "Advise on physical / technical / organisational level" ← Section 4 above.
 * "Diverse IT environments" ← The detector is positioned for SOC deployment (business environment), but the threat model also discusses on-prem appliance deployment and Docker-on-laptop demo deployment.
+
+
+---
+
+## 6. New evidence artefacts & diagram map (Sprint 2–4)
+
+The artefacts below extend the methodical-offensive-analysis evidence with the
+work produced after the initial dossier.
+
+| Artefact | What it proves for LO1 | Link |
+|---|---|---|
+| **Attack-scenario catalogue** — 8 categories, the real tool each maps to (`nmap`/`hping3`/`hydra`/`sqlmap`), the flow signature, and MITRE ATT&CK tactic | Methodical ethical-hacking scenarios against a defined target | [`Attack_Scenarios.md`](../../deliverables/sprint-2-design-and-implement-2026-04-13/Attack_Scenarios.md) |
+| **Live attack → detect → block demo** | A real attack executed and observed end-to-end against the lab target | [`demo-attack-block.mp4`](../demo/demo-attack-block.mp4) |
+| **STRIDE threat model** | Methodical threat analysis of the artefact itself | [`Threat_Model.md`](../architecture/Threat_Model.md) |
+| **Security risk heat-map** (Impact × Likelihood, STRIDE T1–T8 + SR1–SR7) | Common risk-analysis method applied | see below |
+| **C4 context & container diagrams** | The IT environment being analysed, at two levels | see below |
+
+### Attack path — attack → detect → block
+
+![Attack/defend sequence](../screenshots/24_attack_defend_sequence.png)
+
+### Risk analysis — Impact × Likelihood
+
+![Security risk heat-map](../screenshots/25_risk_heatmap.png)
+
+### Environment under analysis — C4 container view
+
+![C4 container](../screenshots/img-fixed.png)

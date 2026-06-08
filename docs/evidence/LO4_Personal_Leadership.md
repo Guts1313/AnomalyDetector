@@ -77,3 +77,24 @@ Based on the deltas above the next-step plan picks three areas:
 * "Choose actions in line with core values" ← §2 + §5.
 * "Promote personal growth" ← §4 actions + §6 deltas.
 * "Develop learning attitude" ← §5 + §7 next-step plan.
+
+
+---
+
+## 9. New evidence artefacts & diagram map (Sprint 2–4)
+
+The artefacts below are concrete outputs of the growth deltas in §6 — the biggest
+of which were network forensics, anomaly-detection algorithms and DOT-style
+research-writing.
+
+| Artefact | Growth it evidences | Link |
+|---|---|---|
+| **Attack/defend lab + demo video** | Container orchestration + network forensics (the +2 deltas) | [`demo-attack-block.mp4`](../demo/demo-attack-block.mp4) |
+| **React + TypeScript frontend** (light & dark) | A new front-end skill picked up beyond the original plan | see below |
+| **Styled C4 & sequence diagrams** | Communicating architecture clearly to stakeholders | [context](../screenshots/21_c4_context.png) · [sequence](../screenshots/24_attack_defend_sequence.png) |
+| **Research Report** (DOT triangulation) | Research-writing growing from a checklist to an instinct | [`Research_Report.pdf`](../Research_Report.pdf) |
+| **Per-sprint deliverables** | Time management via phased delivery on a 14-week PRP | [`deliverables/`](../../deliverables/) |
+
+### A new skill shipped — React frontend (dark theme)
+
+![React overview, dark theme](../screenshots/30_fe_overview_dark.png)

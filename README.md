@@ -71,7 +71,9 @@ AnomalyDetector/
 │   ├── api/             # FastAPI app, routes, dependencies
 │   └── schemas/         # Pydantic request/response models
 ├── dashboard/           # Streamlit dashboard
-├── scripts/             # CLI utilities (train, generate-data, ingest)
+├── frontend/            # React + TypeScript SPA (Vite, light/dark themes)
+├── lab/                 # Attack/defend lab (attacker + defender containers)
+├── scripts/             # CLI utilities (train, capture, diagram + doc builders)
 ├── data/
 │   ├── raw/             # CICIDS2017 / synthetic raw CSVs
 │   └── processed/       # Cleaned + feature-engineered datasets
@@ -79,9 +81,12 @@ AnomalyDetector/
 ├── docs/
 │   ├── research/        # DOT-framework research document
 │   ├── evidence/        # LO1–LO4 evidence dossiers
-│   ├── architecture/    # C4 diagrams, threat model
-│   └── screenshots/     # Demo screenshots used in evidence
-├── notebooks/           # Exploratory analysis
+│   ├── architecture/    # threat model, architecture review
+│   ├── demo/            # demo-attack-block.mp4 (Git LFS)
+│   ├── screenshots/     # diagrams + frontend captures used in evidence
+│   └── Research_Report.pdf
+├── additional-docs/     # Technical Design Document + user stories (HTML)
+├── deliverables/        # Per-sprint hand-in deliverables (one folder per sprint)
 ├── tests/               # pytest suite
 ├── docker-compose.yml
 ├── Dockerfile.api
@@ -121,6 +126,33 @@ docker compose up --build
 ## Research output — DOT framework
 
 The `docs/research/DOT_Research.md` document substantiates every methodological choice using the [DOT framework](https://ictresearchmethods.nl/dot-framework/) (Library, Lab, Field, Workshop, Showroom). Each of the six SRQs is mapped to one or more DOT method strategies with concrete sources, experiments, and findings.
+
+## Deliverables & key documents
+
+Hand-in deliverables are organised per sprint under [`deliverables/`](deliverables/), each with its own README manifest. The headline documents:
+
+| Document | Type | Where |
+|---|---|---|
+| **PRP project proposal** (initial idea & definition) | Word | [`deliverables/.../PRP_Project_Proposal.docx`](deliverables/sprint-0-initial-idea-2026-03-17/PRP_Project_Proposal.docx) |
+| **DOT-framework research** (the proof / substantiation) | Markdown | [`docs/research/DOT_Research.md`](docs/research/DOT_Research.md) |
+| **Research Report** (final, ~44 pp) | PDF | [`docs/Research_Report.pdf`](docs/Research_Report.pdf) |
+| **Technical Design Document** | Word/PDF | [`additional-docs/Technical_Design_Document.docx`](additional-docs/Technical_Design_Document.docx) |
+| **User stories** (12 across 6 epics) | HTML + PNG | [`additional-docs/user_stories.html`](additional-docs/user_stories.html) |
+| **Project plan + Gantt** | Markdown + PNG | [`deliverables/sprint-1-define-and-analyse-2026-03-26/`](deliverables/sprint-1-define-and-analyse-2026-03-26/) |
+| **Attack scenarios** | Markdown | [`deliverables/sprint-2-design-and-implement-2026-04-13/Attack_Scenarios.md`](deliverables/sprint-2-design-and-implement-2026-04-13/Attack_Scenarios.md) |
+| **Validation report + test results** | Markdown + charts | [`deliverables/sprint-3-optimise-and-validate-2026-05-11/`](deliverables/sprint-3-optimise-and-validate-2026-05-11/) |
+| **Advisory report** | Markdown | [`deliverables/sprint-4-research-and-presentation/Advisory_Report.md`](deliverables/sprint-4-research-and-presentation/Advisory_Report.md) |
+| **Presentation deck** | PowerPoint | [`docs/AnomalyDetector-Presentation.pptx`](docs/AnomalyDetector-Presentation.pptx) |
+
+### Live demo (attack → detect → auto-block)
+
+A screen recording of the full attack/defend loop — real tool launched from the UI, captured, classified, and the attacker auto-blocked by `iptables` — is in [`docs/demo/demo-attack-block.mp4`](docs/demo/demo-attack-block.mp4) (Git LFS). See [`docs/demo/README.md`](docs/demo/README.md).
+
+### Diagrams
+
+Styled **C4** [context](docs/screenshots/21_c4_context.png) and [container](docs/screenshots/img-fixed.png) diagrams, the [attack→detect→block sequence](docs/screenshots/24_attack_defend_sequence.png), the [security risk heat-map](docs/screenshots/25_risk_heatmap.png), the [dataset/feature fingerprint](docs/screenshots/26_dataset_fingerprint.png) and the [delivery Gantt](docs/screenshots/20_gantt.png) live in `docs/screenshots/`. They are mapped to the learning outcomes in the LO dossiers below.
+
+> The system also ships a polished **React + TypeScript** frontend (light & dark themes) alongside the Streamlit dashboard, and a containerised **attack/defend lab** (`lab/`) that drives real `nmap`/`hping3`/`hydra`/`sqlmap` traffic through the detector.
 
 ## Learning-outcome evidence
 

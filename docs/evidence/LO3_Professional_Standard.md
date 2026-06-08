@@ -105,3 +105,26 @@ audited rather than taken on trust.
 * "Make decisions" ← §6 decision log.
 * "Deliver reports" ← §7.
 * "Ethical, intercultural, sustainable" ← §8.
+
+
+---
+
+## 10. New evidence artefacts & diagram map (Sprint 2–4)
+
+| Artefact | What it proves for LO3 | Link |
+|---|---|---|
+| **PRP project proposal** | Project goals formulated and scoped | [`PRP_Project_Proposal.docx`](../../deliverables/sprint-0-initial-idea-2026-03-17/PRP_Project_Proposal.docx) |
+| **Research Report** (final, ~44 pp) | Applied research conducted + a delivered report | [`Research_Report.pdf`](../Research_Report.pdf) |
+| **Technical Design Document** | Professional engineering documentation | [`Technical_Design_Document.docx`](../../additional-docs/Technical_Design_Document.docx) |
+| **User stories** (12 across 6 epics, MoSCoW + acceptance criteria) | Stakeholder needs formulated and traceable | [`user_stories.html`](../../additional-docs/user_stories.html) |
+| **Project plan + Gantt** | A professional, phased delivery methodology | [`Project_Plan.md`](../../deliverables/sprint-1-define-and-analyse-2026-03-26/Project_Plan.md) |
+| **Per-sprint deliverables** | Phased delivery against fixed hand-in dates | [`deliverables/`](../../deliverables/) |
+| **Advisory report** | Advice delivered to the (hypothetical) client | [`Advisory_Report.md`](../../deliverables/sprint-4-research-and-presentation/Advisory_Report.md) |
+
+### Planning — four-sprint delivery (Gantt)
+
+![Delivery Gantt](../screenshots/20_gantt.png)
+
+### Stakeholder needs — user stories (example epic)
+
+![User stories — Epic A](../../additional-docs/screenshots/us_epic_a.png)

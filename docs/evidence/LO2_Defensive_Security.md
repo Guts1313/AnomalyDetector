@@ -84,3 +84,25 @@ Two methodical techniques are demonstrated by the artefact:
 * "Considering NFRs: security, monitoring, ethics, compliance, usability" ← §2.1–§2.5.
 * "Procedural response for security incidents" ← §3 + §4.
 * "Analyse incidents in an efficient and methodical way" ← §4 + SRQ6 evidence in the DOT research document.
+
+
+---
+
+## 6. New evidence artefacts & diagram map (Sprint 2–4)
+
+| Artefact | What it proves for LO2 | Link |
+|---|---|---|
+| **Auto-block demo** | Procedural incident response in action — model verdict drives an automatic `iptables` block | [`demo-attack-block.mp4`](../demo/demo-attack-block.mp4) |
+| **React + Streamlit dashboards** (light & dark) | Usability + monitoring NFRs; severity triage at a glance | see below |
+| **Per-class confusion matrix** | Methodical, category-level incident analysis | see below |
+| **Detect-and-respond sequence** | The defensive pipeline from capture to firewall response | [sequence](../screenshots/24_attack_defend_sequence.png) |
+| **Validation report** | NFR validation + feedback round | [`Validation_Report.md`](../../deliverables/sprint-3-optimise-and-validate-2026-05-11/Validation_Report.md) |
+| **Technical Design Document** (NFR & security §) | Secure-architecture design: non-root containers, read-only model, no payloads | [`Technical_Design_Document.docx`](../../additional-docs/Technical_Design_Document.docx) |
+
+### Analyst dashboard — dark theme (SOC wall-display)
+
+![Dark alerts dashboard](../screenshots/31_fe_alerts_dark.png)
+
+### Methodical incident analysis — confusion matrix
+
+![Confusion matrix](../screenshots/06_confusion_matrix.png)
