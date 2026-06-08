@@ -4,7 +4,7 @@
 
 | Required (example) deliverable | Provided |
 |---|---|
-| Research document | [Research_Report.docx](Research_Report.docx) / [.pdf](Research_Report.pdf) |
+| Research document | [Research_Report.pdf](Research_Report.pdf) |
 | Advisory report | [Advisory_Report.md](Advisory_Report.md) |
 | Presentation slides | [Presentation.pptx](Presentation.pptx) |
 | Learning-outcome evidence (LO1–LO4) | [evidence/](evidence/) |
@@ -21,4 +21,4 @@
 - **evidence/** — the per-learning-outcome dossiers (Offensive, Defensive,
   Professional Standard, Personal Leadership).
 
-> Snapshot note: the living research report is `docs/Research_Report_expanded.docx`.
+The same report PDF is kept at `docs/Research_Report.pdf`.

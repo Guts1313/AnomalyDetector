@@ -26,7 +26,8 @@ manifest. The working sources remain in `src/`, `frontend/`, `lab/`, `docs/` and
 | 1 | Project plan, user stories, Scrum board, interview/trend analysis | Project_Plan.md · user-stories/ · Scrum_Board.md · Trend_Analysis.md · planning/gantt.png |
 | 2 | Implementation doc, PoC, network drawing, flowcharts, technical design, attack scenarios | Technical_Design_Document.docx · network-drawing/ · flowcharts/ · Attack_Scenarios.md · Threat_Model.md · Architecture_Review.md |
 | 3 | Implementation docs, code, test results, feedback & validation | Validation_Report.md · test-results/ (matrix, per-class, confusion) · code pointers |
-| 4 | Research document, advisory report, presentation slides | Research_Report.docx/.pdf · Advisory_Report.md · Presentation.pptx · evidence/ (LO1–LO4) |
+| 4 | Research document, advisory report, presentation slides | Research_Report.pdf · Advisory_Report.md · Presentation.pptx · evidence/ (LO1–LO4) |
 
-> Note: the report and TDD here are snapshots. Their living sources are
-> `docs/Research_Report_expanded.docx` and `additional-docs/Technical_Design_Document.docx`.
+> Note: the canonical research report is `docs/Research_Report.pdf` (kept here as
+> `sprint-4/Research_Report.pdf`). The TDD's editable source is
+> `additional-docs/Technical_Design_Document.docx`.
