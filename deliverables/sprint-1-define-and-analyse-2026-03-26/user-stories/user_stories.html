@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>User stories — AnomalyDetector</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap');
+  :root{
+    --bg-deep:#05060a; --bg:#0a0d14; --surface:#11151f; --surface2:#0e1119;
+    --text:#ededf2; --muted:#8a8f98; --faint:#5f6470; --line:rgba(255,255,255,.08);
+    --accent:#6366f1; --accent2:#818cf8; --purple:#9457ff;
+    --green:#10b981; --red:#ef4444; --orange:#f97316; --cyan:#06b6d4;
+    --blue:#3b82f6; --yellow:#eab308; --pink:#ec4899;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:#000;font-family:'Inter',system-ui,sans-serif;color:var(--text);}
+  .epic{
+    width:1180px; padding:30px 34px 30px; position:relative; overflow:hidden;
+    background:
+      radial-gradient(720px 380px at 18% 0%, rgba(99,102,241,0.14), transparent 70%),
+      radial-gradient(620px 420px at 92% 100%, rgba(148,87,255,0.10), transparent 72%),
+      var(--bg-deep);
+  }
+  .epic::before{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(rgba(99,102,241,0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(99,102,241,0.06) 1px, transparent 1px);
+    background-size:32px 32px,32px 32px,160px 160px,160px 160px;
+    mask-image:radial-gradient(130% 120% at 50% 30%, #000 60%, transparent 100%);
+  }
+  .epic-head{position:relative; z-index:2; display:flex; align-items:center; gap:14px; margin-bottom:18px;}
+  .epic-tag{font:800 11px/1 'Inter'; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--accent2); border:1px solid rgba(129,140,248,.35); background:rgba(99,102,241,.08);
+    border-radius:999px; padding:7px 13px;}
+  .epic-head h2{margin:0; font-size:21px; font-weight:700; letter-spacing:-0.01em;}
+  .epic-head .sub{color:var(--muted); font-size:13px; margin-left:auto;}
+  .grid{position:relative; z-index:2; display:grid; grid-template-columns:1fr 1fr; gap:18px;}
+  .card{
+    background:linear-gradient(180deg, rgba(20,26,38,.72), rgba(14,17,25,.72));
+    border:1px solid var(--line); border-radius:16px; padding:18px 20px;
+    box-shadow:0 18px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
+  }
+  .card-top{display:flex; align-items:center; gap:10px; margin-bottom:12px;}
+  .usid{font:700 13px 'JetBrains Mono',monospace; color:var(--accent2);
+    background:rgba(99,102,241,.12); border:1px solid rgba(129,140,248,.3);
+    border-radius:8px; padding:4px 9px;}
+  .role{font-size:11px; font-weight:700; letter-spacing:.04em; padding:4px 10px; border-radius:999px;}
+  .role.analyst{color:#a5b4fc; background:rgba(99,102,241,.15); border:1px solid rgba(129,140,248,.35);}
+  .role.mleng{color:#5ee3b0; background:rgba(16,185,129,.13); border:1px solid rgba(16,185,129,.35);}
+  .role.lab{color:#ffa3a3; background:rgba(239,68,68,.13); border:1px solid rgba(239,68,68,.35);}
+  .role.ops{color:#7fe6f7; background:rgba(6,182,212,.13); border:1px solid rgba(6,182,212,.35);}
+  .meta{margin-left:auto; display:flex; gap:8px; align-items:center;}
+  .prio{font-size:10.5px; font-weight:700; letter-spacing:.05em; padding:4px 9px; border-radius:6px;}
+  .prio.must{color:#fff; background:#ef4444;}
+  .prio.should{color:#0a0d14; background:#f97316;}
+  .prio.could{color:#0a0d14; background:#3b82f6;}
+  .pts{font:600 12px 'JetBrains Mono',monospace; color:var(--muted);}
+  .story{font-size:14.5px; line-height:1.5; margin:0 0 14px;}
+  .story b{color:#fff; font-weight:700;}
+  .ac-h{font-size:10.5px; font-weight:800; letter-spacing:.13em; text-transform:uppercase; color:var(--faint); margin-bottom:7px;}
+  .ac{font-size:12.5px; line-height:1.55; color:#cdd3e6; margin:0;}
+  .ac .g{color:var(--green); font-weight:700;}
+  .ac .w{color:var(--yellow); font-weight:700;}
+  .ac .t{color:var(--pink); font-weight:700;}
+  .links{margin-top:13px; padding-top:12px; border-top:1px dashed var(--line); display:flex; gap:8px; flex-wrap:wrap;}
+  .chip{font:600 11px 'JetBrains Mono',monospace; color:var(--muted);
+    border:1px solid var(--line); border-radius:6px; padding:3px 8px; background:rgba(255,255,255,.02);}
+</style>
+</head>
+<body>
+
+<!-- EPIC A -->
+<section class="epic" id="epic-a">
+  <div class="epic-head">
+    <span class="epic-tag">Epic A</span>
+    <h2>Real-time detection</h2>
+    <span class="sub">Primary actor · SOC analyst</span>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-top"><span class="usid">US-01</span><span class="role analyst">SOC analyst</span>
+        <span class="meta"><span class="prio must">MUST</span><span class="pts">8 pts</span></span></div>
+      <p class="story">As a <b>SOC analyst</b>, I want incoming flows scored the moment they arrive, so that I can <b>react to attacks in real time</b>.</p>
+      <div class="ac-h">Acceptance criteria</div>
+      <p class="ac"><span class="g">Given</span> a batch of flows POSTed to <code>/predict</code>, <span class="w">When</span> the model is loaded, <span class="t">Then</span> a verdict and score return in well under 50 ms and are written to the audit log.</p>
+      <div class="links"><span class="chip">FR1</span><span class="chip">FR2</span><span class="chip">SRQ3</span></div>
+    </div>
+    <div class="card">
+      <div class="card-top"><span class="usid">US-02</span><span class="role analyst">SOC analyst</span>
+        <span class="meta"><span class="prio must">MUST</span><span class="pts">3 pts</span></span></div>
+      <p class="story">As a <b>SOC analyst</b>, I want every alert colour-coded by severity, so that I can <b>triage the most dangerous first</b>.</p>
+      <div class="ac-h">Acceptance criteria</div>
+      <p class="ac"><span class="g">Given</span> a scored flow, <span class="w">When</span> its attack score crosses a band, <span class="t">Then</span> it is tagged info/low/medium/high/critical and the dashboard surfaces medium-and-above by default.</p>
+      <div class="links"><span class="chip">FR4</span><span class="chip">SRQ4</span><span class="chip">SRQ5</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- EPIC B -->
+<section class="epic" id="epic-b">
+  <div class="epic-head">
+    <span class="epic-tag">Epic B</span>
+    <h2>Investigation &amp; audit</h2>
+    <span class="sub">Primary actor · SOC analyst</span>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-top"><span class="usid">US-03</span><span class="role analyst">SOC analyst</span>
+        <span class="meta"><span class="prio must">MUST</span><span class="pts">5 pts</span></span></div>
+      <p class="story">As a <b>SOC analyst</b>, I want a complete, queryable log of every classification, so that I can <b>explain why a flow was or was not flagged</b>.</p>
+      <div class="ac-h">Acceptance criteria</div>
+      <p class="ac"><span class="g">Given</span> any past flow, <span class="w">When</span> I open <code>/predictions</code>, <span class="t">Then</span> I see timestamp, verdict, score, severity, src/dst IP, model name and latency.</p>
+      <div class="links"><span class="chip">FR3</span><span class="chip">SRQ5</span></div>
+    </div>
+    <div class="card">
+      <div class="card-top"><span class="usid">US-04</span><span class="role analyst">SOC analyst</span>
+        <span class="meta"><span class="prio should">SHOULD</span><span class="pts">3 pts</span></span></div>
+      <p class="story">As a <b>SOC analyst</b>, I want to pivot on source and destination IPs, so that I can <b>follow an attacker across alerts</b>.</p>
+      <div class="ac-h">Acceptance criteria</div>
+      <p class="ac"><span class="g">Given</span> an alert row, <span class="w">When</span> I read it, <span class="t">Then</span> src/dst IP are shown, sortable, and consistent with the audit log entry.</p>
+      <div class="links"><span class="chip">FR4</span><span class="chip">SRQ5</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- EPIC C -->
+<section class="epic" id="epic-c">
+  <div class="epic-head">
+    <span class="epic-tag">Epic C</span>
+    <h2>Tuning &amp; explainability</h2>
+    <span class="sub">Primary actor · SOC analyst</span>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-top"><span class="usid">US-05</span><span class="role analyst">SOC analyst</span>
+        <span class="meta"><span class="prio should">SHOULD</span><span class="pts">3 pts</span></span></div>
+      <p class="story">As a <b>SOC analyst</b>, I want a decision-threshold slider, so that I can <b>tune sensitivity per investigation without retraining</b>.</p>
+      <div class="ac-h">Acceptance criteria</div>
+      <p class="ac"><span class="g">Given</span> the manual-scoring view, <span class="w">When</span> I move the threshold slider, <span class="t">Then</span> the verdict recomputes against the new operating point instantly, with no model reload.</p>
+      <div class="links"><span class="chip">FR5</span><span class="chip">SRQ4</span></div>
+    </div>
+    <div class="card">
+      <div class="card-top"><span class="usid">US-06</span><span class="role analyst">SOC analyst</span>
+        <span class="meta"><span class="prio should">SHOULD</span><span class="pts">5 pts</span></span></div>
+      <p class="story">As a <b>SOC analyst</b>, I want to score a hypothetical flow and see per-class probabilities, so that I can <b>understand the model's reasoning</b>.</p>
+      <div class="ac-h">Acceptance criteria</div>
+      <p class="ac"><span class="g">Given</span> a hand-built flow, <span class="w">When</span> I click <em>Score flow</em>, <span class="t">Then</span> a verdict and a full class-probability chart render with the deciding model named.</p>
+      <div class="links"><span class="chip">FR4</span><span class="chip">SRQ5</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- EPIC D -->
+<section class="epic" id="epic-d">
+  <div class="epic-head">
+    <span class="epic-tag">Epic D</span>
+    <h2>Model lifecycle</h2>
+    <span class="sub">Primary actor · ML engineer</span>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-top"><span class="usid">US-07</span><span class="role mleng">ML engineer</span>
+        <span class="meta"><span class="prio must">MUST</span><span class="pts">5 pts</span></span></div>
+      <p class="story">As an <b>ML engineer</b>, I want to retrain and hot-reload the model without downtime, so that <b>improvements ship without an outage</b>.</p>
+      <div class="ac-h">Acceptance criteria</div>
+      <p class="ac"><span class="g">Given</span> a freshly trained <code>best.joblib</code>, <span class="w">When</span> I POST <code>/admin/reload</code>, <span class="t">Then</span> the active model swaps with no dropped requests and <code>/health</code> reports the new model name.</p>
+      <div class="links"><span class="chip">FR6</span><span class="chip">SRQ3</span></div>
+    </div>
+    <div class="card">
+      <div class="card-top"><span class="usid">US-08</span><span class="role mleng">ML engineer</span>
+        <span class="meta"><span class="prio should">SHOULD</span><span class="pts">5 pts</span></span></div>
+      <p class="story">As an <b>ML engineer</b>, I want a per-class precision/recall/F1 report, so that I <b>know which attack categories are weak</b>.</p>
+      <div class="ac-h">Acceptance criteria</div>
+      <p class="ac"><span class="g">Given</span> a completed training run, <span class="w">When</span> evaluation finishes, <span class="t">Then</span> <code>per_class_report.json</code> and a confusion matrix are produced and the infiltration weak spot is visible.</p>
+      <div class="links"><span class="chip">SRQ2</span><span class="chip">SRQ6</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- EPIC E -->
+<section class="epic" id="epic-e">
+  <div class="epic-head">
+    <span class="epic-tag">Epic E</span>
+    <h2>Attack / defend lab</h2>
+    <span class="sub">Primary actors · security student, defender</span>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-top"><span class="usid">US-09</span><span class="role lab">Security student</span>
+        <span class="meta"><span class="prio could">COULD</span><span class="pts">8 pts</span></span></div>
+      <p class="story">As a <b>security student</b>, I want to launch a real attack tool from the UI, so that I can <b>watch the detector classify live traffic</b>.</p>
+      <div class="ac-h">Acceptance criteria</div>
+      <p class="ac"><span class="g">Given</span> the Request-examples tab, <span class="w">When</span> I click <em>Run on lab</em>, <span class="t">Then</span> the matching tool (nmap / hping3 / hydra / sqlmap) runs against the defender for a bounded time and live verdicts appear in the Alerts tab.</p>
+      <div class="links"><span class="chip">LAB</span><span class="chip">SRQ6</span></div>
+    </div>
+    <div class="card">
+      <div class="card-top"><span class="usid">US-10</span><span class="role lab">Defender</span>
+        <span class="meta"><span class="prio could">COULD</span><span class="pts">8 pts</span></span></div>
+      <p class="story">As a <b>defender</b>, I want a confirmed attacker IP blocked automatically, so that <b>response is immediate and hands-free</b>.</p>
+      <div class="ac-h">Acceptance criteria</div>
+      <p class="ac"><span class="g">Given</span> an attack verdict with score ≥ 0.7, <span class="w">When</span> it is classified, <span class="t">Then</span> the defender installs an <code>iptables DROP</code> rule for the source and subsequent probes time out.</p>
+      <div class="links"><span class="chip">FR2</span><span class="chip">SRQ6</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- EPIC F -->
+<section class="epic" id="epic-f">
+  <div class="epic-head">
+    <span class="epic-tag">Epic F</span>
+    <h2>Operations, security &amp; compliance</h2>
+    <span class="sub">Primary actors · NOC operator, security officer</span>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <div class="card-top"><span class="usid">US-11</span><span class="role ops">NOC operator</span>
+        <span class="meta"><span class="prio must">MUST</span><span class="pts">3 pts</span></span></div>
+      <p class="story">As a <b>NOC operator</b>, I want health and metrics endpoints, so that I can <b>monitor the service and detect drift</b>.</p>
+      <div class="ac-h">Acceptance criteria</div>
+      <p class="ac"><span class="g">Given</span> the running service, <span class="w">When</span> I GET <code>/health</code> and <code>/metrics</code>, <span class="t">Then</span> I receive model-load state, totals, severity breakdown, attacks-by-class and rolling latency.</p>
+      <div class="links"><span class="chip">FR3</span><span class="chip">NFR-mon</span></div>
+    </div>
+    <div class="card">
+      <div class="card-top"><span class="usid">US-12</span><span class="role ops">Security officer</span>
+        <span class="meta"><span class="prio must">MUST</span><span class="pts">3 pts</span></span></div>
+      <p class="story">As a <b>security officer</b>, I want no packet payloads ingested or stored, so that we <b>remain GDPR/AVG compliant</b>.</p>
+      <div class="ac-h">Acceptance criteria</div>
+      <p class="ac"><span class="g">Given</span> any request, <span class="w">When</span> it is processed, <span class="t">Then</span> only flow-level statistics reach the model, IPs are pseudonymisable, and payloads are never persisted.</p>
+      <div class="links"><span class="chip">NFR-sec</span><span class="chip">LO2</span></div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
