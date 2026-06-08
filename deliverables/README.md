@@ -22,7 +22,7 @@ manifest. The working sources remain in `src/`, `frontend/`, `lab/`, `docs/` and
 
 | Sprint | Required (example) deliverables | Provided |
 |---|---|---|
-| 0 | Initial idea, project definition | Project_Definition.md |
+| 0 | Initial idea, project definition | PRP_Project_Proposal.docx · Project_Definition.md |
 | 1 | Project plan, user stories, Scrum board, interview/trend analysis | Project_Plan.md · user-stories/ · Scrum_Board.md · Trend_Analysis.md · planning/gantt.png |
 | 2 | Implementation doc, PoC, network drawing, flowcharts, technical design, attack scenarios | Technical_Design_Document.docx · network-drawing/ · flowcharts/ · Attack_Scenarios.md · Threat_Model.md · Architecture_Review.md |
 | 3 | Implementation docs, code, test results, feedback & validation | Validation_Report.md · test-results/ (matrix, per-class, confusion) · code pointers |
