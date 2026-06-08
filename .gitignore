@@ -39,3 +39,7 @@ models/*.pkl
 alerts.db
 _prp_extract.txt
 _read_prp.py
+
+# Local snapshots and crash dumps (never push)
+backups/
+*.stackdump
